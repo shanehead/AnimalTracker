@@ -1,0 +1,7 @@
+<table class="table table-hover">
+    <tr>
+        <td width="70px"><img src="{{ url_for('animal_avatar', animal_id=animal.id) }}" class="img-polaroid">
+        <td><p>Name: {{ animal.name }}</p></td>
+        <td><p>Species: {{ animal.species_common }}</p></td>
+    </tr>
+</table>

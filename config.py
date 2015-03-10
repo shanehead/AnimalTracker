@@ -10,6 +10,7 @@ class Config(object):
 		{'name': 'Google', 'url': 'https://www.google.com/accounts/o8/id'},
 		{'name': 'MyOpenID', 'url': 'https://www.myopenid.com'}
 	]
+	UPLOAD_FOLDER = os.path.join(basedir, 'app/uploads')
 
 class DevConfig(Config):
 	ASSETS_DEBUG = True

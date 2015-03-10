@@ -1,9 +1,11 @@
 from app import app, db, lm, oid
-from flask import render_template, url_for, flash, redirect, session, request, g
+from flask import render_template, url_for, flash, redirect, session, request, g, make_response
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from forms import LoginForm, EditForm
-from models import User
+from forms import LoginForm, EditForm, AddAnimalForm
+from models import User, Animal, AnimalWeight
 from datetime import datetime
+from uuid import uuid4
+from werkzeug import secure_filename
 
 @app.route('/')
 @app.route('/index')
@@ -63,7 +65,8 @@ def user(nickname):
 	if user == None:
 		flash('User %s not found.' % nickname)
 		return redirect(url_for('index'))
-	return render_template('user.html', user=user)
+	animals = user.animals.all()
+	return render_template('user.html', user=user, animals=animals)
 
 @app.route('/edit', methods=['GET', 'POST'])
 @login_required
@@ -80,6 +83,30 @@ def edit():
 		form.nickname.data = g.user.nickname
 		form.about_me.data = g.user.about_me
 	return render_template('edit.html', form=form)
+
+@app.route('/add_animal', methods=['GET', 'POST'])
+@login_required
+def add_animal():
+	form = AddAnimalForm()
+	if request.method == 'POST' and form.validate_on_submit():
+		photo_filename = "%s/%s_%s" % (app.config['UPLOAD_FOLDER'], uuid4(),
+									   secure_filename(form.avatar.data.filename))
+		animal = Animal(name=form.name.data, species=form.species.data,
+						species_common=form.species_common.data, dob=form.dob.data, owner=g.user.id)
+		animal.avatar = photo_filename
+		form.avatar.data.save(photo_filename)
+		db.session.add(animal)
+		db.session.commit()
+		flash('%s has been added' % form.name.data)
+		return redirect(url_for('user', nickname=g.user.nickname))
+	return render_template('add_animal.html', title='Add an animal', form=form)
+
+@app.route('/animal_avatar/<int:animal_id>.jpg')
+def animal_avatar(animal_id):
+	animal = Animal.query.get(int(animal_id))
+	resp = make_response(open(animal.avatar).read())
+	resp.content_type = "image/jpeg"
+	return resp
 
 @app.before_request
 def before_request():
