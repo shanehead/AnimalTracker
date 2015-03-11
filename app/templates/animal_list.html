@@ -8,7 +8,7 @@
     <tbody>
     {% for animal in animals %}
 		<tr>
-            <td><img src="{{ animal.avatar|thumbnail('125x125', crop='fit') }}" class="Rounded Image" alt="{{ animal.name }}"></td>
+            <td><img src="{{ animal.get_avatar()|thumbnail('125x125', crop='fit') }}" class="Rounded Image" alt="{{ animal.name }}"></td>
 			<td><p>Name: {{ animal.name }}</p></td>
 			<td><p>Species: {{ animal.species_common }}</p></td>
 		</tr>

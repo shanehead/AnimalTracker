@@ -10,6 +10,7 @@ class User(db.Model):
 	about_me = db.Column(db.String(140))
 	last_seen = db.Column(db.DateTime)
 	animals = db.relationship("Animal", backref='user_id', lazy='dynamic')
+	avatar = db.Column(db.String)
 
 	@staticmethod
 	def make_unique_nickname(nickname):
@@ -23,8 +24,8 @@ class User(db.Model):
 			version += 1
 		return new_nickname
 
-	def avatar(self, size):
-		return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' % (md5(self.email.encode('utf-8')).hexdigest(), size)
+	def get_avatar(self):
+		return self.avatar or ''
 
 	def is_authenticated(self):
 		return True
@@ -51,6 +52,9 @@ class Animal(db.Model):
 	dob = db.Column(db.Date)
 	owner = db.Column(db.Integer, db.ForeignKey('users.id'))
 	avatar = db.Column(db.String)
+
+	def get_avatar(self):
+		return self.avatar or ''
 
 class AnimalWeight(db.Model):
 	__tablename__ = 'weights'

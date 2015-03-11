@@ -73,9 +73,12 @@ def user(nickname):
 @login_required
 def edit():
 	form = EditForm(g.user.nickname)
-	if form.validate_on_submit():
+	if request.method == 'POST' and form.validate_on_submit():
 		g.user.nickname = form.nickname.data
 		g.user.about_me = form.about_me.data
+		g.user.avatar = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
+		photo_path = app.config['MEDIA_FOLDER'] + '/' + g.user.avatar
+		form.avatar.data.save(photo_path)
 		db.session.add(g.user)
 		db.session.commit()
 		flash('Your changes have been saved')
@@ -83,7 +86,7 @@ def edit():
 	else:
 		form.nickname.data = g.user.nickname
 		form.about_me.data = g.user.about_me
-	return render_template('edit.html', form=form)
+	return render_template('edit.html', form=form, user=g.user)
 
 @app.route('/add_animal', methods=['GET', 'POST'])
 @login_required
@@ -91,7 +94,7 @@ def add_animal():
 	form = AddAnimalForm()
 	if request.method == 'POST' and form.validate_on_submit():
 		photo_filename = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
-		photo_path = app.config['MEDIA_PATH'] + photo_filename
+		photo_path = app.config['MEDIA_FOLDER'] + '/' + photo_filename
 		animal = Animal(name=form.name.data, species=form.species.data,
 						species_common=form.species_common.data, dob=form.dob.data, owner=g.user.id)
 		animal.avatar = photo_filename
@@ -104,10 +107,6 @@ def add_animal():
 
 @app.route('/uploads/<img_name>')
 def uploads(img_name):
-	#photo_path = app.config['MEDIA_FOLDER'] + img_name
-	#resp = make_response(open(photo_path).read())
-	#resp.content_type = "image/jpeg"
-	#return resp
 	return send_from_directory(app.config['MEDIA_FOLDER'], img_name)
 
 @app.before_request

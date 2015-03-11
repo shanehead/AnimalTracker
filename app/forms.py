@@ -9,6 +9,7 @@ class LoginForm(Form):
 	remember_me = BooleanField('Remember me', default=False)
 
 class EditForm(Form):
+	avatar = FileField('Photo')
 	nickname = StringField('Nickname', validators=[DataRequired()])
 	about_me = TextAreaField('About Me', validators=[Length(min=0, max=140)])
 

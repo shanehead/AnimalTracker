@@ -3,9 +3,9 @@
 
 {% block content %}
 {% include 'flash.html' %}
-<div class="well well-large" style="height: 140px;">
+<div class="well">
     <div class="pull-right">
-        <img src="{{user.avatar(128)}}" class="img-polaroid">
+        <img src="{{ user.get_avatar()|thumbnail('125x125', crop='fit') }}" class="Rounded Image" alt="{{ user.nickname }}">
     </div>
     <h1>{{user.nickname}}</h1>
     {% if user.about_me %}<p>{{user.about_me}}</p>{% endif %}
