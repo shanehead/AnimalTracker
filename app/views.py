@@ -1,5 +1,5 @@
 from app import app, db, lm, oid
-from flask import render_template, url_for, flash, redirect, session, request, g, make_response
+from flask import render_template, url_for, flash, redirect, session, request, g, send_from_directory
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from forms import LoginForm, EditForm, AddAnimalForm
 from models import User, Animal, AnimalWeight
@@ -25,7 +25,7 @@ def load_user(id):
 def login():
 	# Send them to their home page if they are logged in
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('user.html', user=g.user))
+		return redirect(url_for('user', user=g.user))
 	form = LoginForm()
 	if form.validate_on_submit():
 		session['remember_me'] = form.remember_me.data
@@ -35,6 +35,7 @@ def login():
 @app.route('/logout')
 def logout():
 	logout_user()
+	g.user = None
 	return redirect(url_for('index'))
 
 @oid.after_login
@@ -89,24 +90,25 @@ def edit():
 def add_animal():
 	form = AddAnimalForm()
 	if request.method == 'POST' and form.validate_on_submit():
-		photo_filename = "%s/%s_%s" % (app.config['UPLOAD_FOLDER'], uuid4(),
-									   secure_filename(form.avatar.data.filename))
+		photo_filename = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
+		photo_path = app.config['MEDIA_PATH'] + photo_filename
 		animal = Animal(name=form.name.data, species=form.species.data,
 						species_common=form.species_common.data, dob=form.dob.data, owner=g.user.id)
 		animal.avatar = photo_filename
-		form.avatar.data.save(photo_filename)
+		form.avatar.data.save(photo_path)
 		db.session.add(animal)
 		db.session.commit()
 		flash('%s has been added' % form.name.data)
 		return redirect(url_for('user', nickname=g.user.nickname))
 	return render_template('add_animal.html', title='Add an animal', form=form)
 
-@app.route('/animal_avatar/<int:animal_id>.jpg')
-def animal_avatar(animal_id):
-	animal = Animal.query.get(int(animal_id))
-	resp = make_response(open(animal.avatar).read())
-	resp.content_type = "image/jpeg"
-	return resp
+@app.route('/uploads/<img_name>')
+def uploads(img_name):
+	#photo_path = app.config['MEDIA_FOLDER'] + img_name
+	#resp = make_response(open(photo_path).read())
+	#resp.content_type = "image/jpeg"
+	#return resp
+	return send_from_directory(app.config['MEDIA_FOLDER'], img_name)
 
 @app.before_request
 def before_request():
@@ -124,3 +126,4 @@ def not_found_error(error):
 def internal_error(error):
 	db.session.rollback()
 	return render_template('500.html'), 500
+

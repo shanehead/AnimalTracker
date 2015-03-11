@@ -2,7 +2,8 @@ from flask import Flask
 from flask.ext.login import LoginManager
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.openid import OpenID
-from flask_bootstrap3 import Bootstrap
+from flask_bootstrap import Bootstrap
+from flask_thumbnails import Thumbnail
 from config import basedir, DevConfig
 from momentjs import momentjs
 import os
@@ -11,6 +12,7 @@ app = Flask(__name__)
 app.config.from_object(DevConfig)
 app.jinja_env.globals['momentjs'] = momentjs
 bootstrap = Bootstrap(app)
+thumb = Thumbnail(app)
 
 db = SQLAlchemy(app)
 
