@@ -3,12 +3,13 @@ from wtforms.ext.dateutil.fields import DateField
 from wtforms import StringField, BooleanField, TextAreaField
 from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, Length
+from models import User
 
 class LoginForm(Form):
-	openid = StringField('Open ID', validators=[DataRequired()])
+	openid = StringField('Or enter your OpenID here', validators=[DataRequired()])
 	remember_me = BooleanField('Remember me', default=False)
 
-class EditForm(Form):
+class UserEditForm(Form):
 	avatar = FileField('Photo')
 	nickname = StringField('Nickname', validators=[DataRequired()])
 	about_me = TextAreaField('About Me', validators=[Length(min=0, max=140)])

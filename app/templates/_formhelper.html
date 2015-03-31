@@ -1,6 +1,6 @@
 {% macro render_field(field) %}
     <div class="form-group">
-        <label for="addAnimal" class="control-label col-xs-2">{{ field.label }}</label>
+        <label for="AnimalTracker" class="control-label col-xs-2">{{ field.label }}</label>
         <div class="col-xs-10">{{ field(**kwargs)|safe }}</div>
         {% if field.errors %}
             <ul class=errors>

@@ -28,7 +28,7 @@ function set_openid(openid, pr)
         <div class="control-group{% if form.errors.openid %} error{% endif %}">
             <label class="control-label" for="openid">Or enter your OpenID here:</label>
             <div class="controls">
-                {{ form.openid(size = 80, class = "span4") }}
+                {{ form.openid(size = 35, class = "span4") }}
                 {% for error in form.errors.openid %}
                     <span class="help-inline">[{{error}}]</span><br>
                 {% endfor %}

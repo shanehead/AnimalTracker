@@ -1,11 +1,12 @@
 from app import app, db, lm, oid
 from flask import render_template, url_for, flash, redirect, session, request, g, send_from_directory
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from forms import LoginForm, EditForm, AddAnimalForm
+from forms import LoginForm, UserEditForm, AddAnimalForm
 from models import User, Animal, AnimalWeight
-from datetime import datetime
+from datetime import datetime, date
 from uuid import uuid4
 from werkzeug import secure_filename
+from dateutil.relativedelta import relativedelta
 
 @app.route('/')
 @app.route('/index')
@@ -25,7 +26,7 @@ def load_user(id):
 def login():
 	# Send them to their home page if they are logged in
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('user', user=g.user))
+		return redirect(url_for('user', nickname=g.user.nickname))
 	form = LoginForm()
 	if form.validate_on_submit():
 		session['remember_me'] = form.remember_me.data
@@ -69,24 +70,50 @@ def user(nickname):
 	animals = user.animals.all()
 	return render_template('user.html', user=user, animals=animals)
 
-@app.route('/edit', methods=['GET', 'POST'])
+@app.route('/edit_user', methods=['GET', 'POST'])
 @login_required
-def edit():
-	form = EditForm(g.user.nickname)
+def edit_user():
+	form = UserEditForm(g.user.nickname)
 	if request.method == 'POST' and form.validate_on_submit():
 		g.user.nickname = form.nickname.data
 		g.user.about_me = form.about_me.data
-		g.user.avatar = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
-		photo_path = app.config['MEDIA_FOLDER'] + '/' + g.user.avatar
-		form.avatar.data.save(photo_path)
+		if form.avatar.data:
+			g.user.avatar = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
+			photo_path = app.config['MEDIA_FOLDER'] + '/' + g.user.avatar
+			form.avatar.data.save(photo_path)
 		db.session.add(g.user)
 		db.session.commit()
 		flash('Your changes have been saved')
-		return redirect(url_for('edit'))
+		return redirect(url_for('user', nickname=g.user.nickname))
 	else:
 		form.nickname.data = g.user.nickname
 		form.about_me.data = g.user.about_me
-	return render_template('edit.html', form=form, user=g.user)
+	return render_template('edit_user.html', form=form, user=g.user)
+
+@app.route('/edit_animal/<id>', methods=['GET', 'POST'])
+@login_required
+def edit_animal(id):
+	animal = Animal.query.filter_by(id=id).first()
+	form = AddAnimalForm()
+	if request.method == 'POST' and form.validate_on_submit():
+		animal.name = form.name.data
+		animal.species = form.species.data
+		animal.species_common = form.species_common.data
+		animal.dob = form.dob.data
+		if form.avatar.data:
+			animal.avatar = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
+			photo_path = app.config['MEDIA_FOLDER'] + '/' + animal.avatar
+			form.avatar.data.save(photo_path)
+		db.session.add(animal)
+		db.session.commit()
+		flash('Your changes have been saved')
+		return redirect(url_for('animal', id=animal.id))
+	else:
+		form.name.data = animal.name
+		form.species.data = animal.species
+		form.species_common.data = animal.species_common
+		form.dob.data = animal.dob
+	return render_template('edit_animal.html', form=form, animal=animal)
 
 @app.route('/add_animal', methods=['GET', 'POST'])
 @login_required
@@ -104,6 +131,29 @@ def add_animal():
 		flash('%s has been added' % form.name.data)
 		return redirect(url_for('user', nickname=g.user.nickname))
 	return render_template('add_animal.html', title='Add an animal', form=form)
+
+@app.route('/animal/<id>')
+def animal(id):
+	animal = Animal.query.filter_by(id=id).first()
+	if animal == None:
+		flash('Animal with ID %d not found.' % id)
+		return redirect(url_for('index'))
+	# Calculate the age here
+	delta = relativedelta(date.today(), animal.dob)
+	if delta.years != 0:
+		if delta.months != 0:
+			animal.age = '%d years, %d months' % (delta.years, delta.months)
+		else:
+			animal.age = '%d years' % (delta.years, delta.months)
+	else:
+		if delta.months != 0:
+			if delta.days != 0:
+				animal.age = '%d months, %d days' % (delta.months, delta.years)
+			else:
+				animal.age = '%d months' % (delta.months, delta.years)
+		else:
+			animal.age = '%d days' % delta.days
+	return render_template('animal.html', animal=animal)
 
 @app.route('/uploads/<img_name>')
 def uploads(img_name):

@@ -1,5 +1,4 @@
 from app import db
-from hashlib import md5
 
 class User(db.Model):
 	__tablename__ = 'users'

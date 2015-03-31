@@ -1,0 +1,24 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit Your Animal</h1>
+{% include 'flash.html' %}
+{% from "_formhelper.html" import render_field %}
+<div class="well">
+	<img src="{{ animal.get_avatar()|thumbnail('125x125', crop='fit') }}" class="Rounded Image" alt="{{ animal.name }}">
+    <form class="form-horizontal" action="" method="post" name="edit_animal" enctype="multipart/form-data">
+    	{{ form.hidden_tag() }}
+		{{ render_field(form.avatar) }}
+		{{ render_field(form.name) }}
+		{{ render_field(form.species) }}
+		{{ render_field(form.species_common) }}
+		{{ render_field(form.dob) }}
+        <div class="control-group">
+            <div class="controls">
+                <input class="btn btn-primary" type="submit" value="Save Changes">
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
