@@ -1,12 +1,13 @@
-from app import app, db, lm, oid
+from app import app, db, lm, googlelogin
 from flask import render_template, url_for, flash, redirect, session, request, g, send_from_directory
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from forms import LoginForm, UserEditForm, AddAnimalForm
-from models import User, Animal, AnimalWeight
-from datetime import datetime, date
+from forms import UserEditForm, AddAnimalForm
+from models import User, Animal
+from datetime import date
 from uuid import uuid4
 from werkzeug import secure_filename
 from dateutil.relativedelta import relativedelta
+import json
 
 @app.route('/')
 @app.route('/index')
@@ -15,23 +16,36 @@ def index():
 	# Send them to their home page if they are logged in
 	# login_required decorator will send them to the login page if they aren't
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('user', nickname=g.user.nickname))
+		return redirect(url_for('user', google_id=g.user.google_id))
 
+@googlelogin.user_loader
 @lm.user_loader
-def load_user(id):
-	return User.query.get(int(id))
+def load_user(google_id):
+	return User.query.filter_by(google_id=google_id).first()
 
 @app.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
 def login():
 	# Send them to their home page if they are logged in
-	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('user', nickname=g.user.nickname))
-	form = LoginForm()
-	if form.validate_on_submit():
-		session['remember_me'] = form.remember_me.data
-		return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
-	return render_template('login.html', title='Sign In', form=form, providers=app.config['OPENID_PROVIDERS'])
+	#if g.user is not None and g.user.is_authenticated():
+	#	return redirect(url_for('user', google_id=g.user.google_id))
+	return render_template('login.html', title='Sign In', googlelogin=googlelogin)
+
+@app.route('/oauth2callback')
+@googlelogin.oauth2callback
+def login_callback(token, userinfo, **params):
+	google_id = userinfo['id']
+	user = User.query.filter_by(google_id=google_id).first()
+	if user is None:
+		user = User(google_id=google_id)
+		user.name = userinfo['name']
+		user.avatar = userinfo['picture']
+		db.session.add(user)
+		db.session.commit()
+		session['token'] = json.dumps(token)
+		session['extra'] = params.get('extra')
+	login_user(user, remember=True)
+	g.user = user
+	return redirect(url_for('user', google_id=google_id))
 
 @app.route('/logout')
 def logout():
@@ -39,33 +53,15 @@ def logout():
 	g.user = None
 	return redirect(url_for('index'))
 
-@oid.after_login
-def after_login(resp):
-	if resp.email is None or resp.email == "":
-		flash("Invalid login. PLease try again")
-		return redirect(url_for('login'))
-	user = User.query.filter_by(email=resp.email).first()
-	if user is None:
-		nickname = resp.nickname
-		if nickname is None or nickname == "":
-			nickname = resp.email.split('@')[0]
-		nickname = User.make_unique_nickname(nickname)
-		user = User(nickname=nickname, email=resp.email)
-		db.session.add(user)
-		db.session.commit()
-	remember_me = False
-	if 'remember_me' in session:
-		remember_me = session['remember_me']
-		session.pop('remember_me', None)
-	login_user(user, remember=remember_me)
-	return redirect(request.args.get('next') or url_for('index'))
-
-@app.route('/user/<nickname>')
+@app.route('/user/<google_id>')
 @login_required
-def user(nickname):
-	user = User.query.filter_by(nickname=nickname).first()
+def user(google_id):
+	if google_id == g.user.google_id:
+		user = g.user
+	else:
+		user = User.query.filter_by(google_id=google_id).first()
 	if user == None:
-		flash('User %s not found.' % nickname)
+		flash('User %s not found.' % google_id)
 		return redirect(url_for('index'))
 	animals = user.animals.all()
 	return render_template('user.html', user=user, animals=animals)
@@ -73,20 +69,14 @@ def user(nickname):
 @app.route('/edit_user', methods=['GET', 'POST'])
 @login_required
 def edit_user():
-	form = UserEditForm(g.user.nickname)
+	form = UserEditForm()
 	if request.method == 'POST' and form.validate_on_submit():
-		g.user.nickname = form.nickname.data
 		g.user.about_me = form.about_me.data
-		if form.avatar.data:
-			g.user.avatar = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
-			photo_path = app.config['MEDIA_FOLDER'] + '/' + g.user.avatar
-			form.avatar.data.save(photo_path)
 		db.session.add(g.user)
 		db.session.commit()
 		flash('Your changes have been saved')
-		return redirect(url_for('user', nickname=g.user.nickname))
+		return redirect(url_for('user', google_id=g.user.google_id))
 	else:
-		form.nickname.data = g.user.nickname
 		form.about_me.data = g.user.about_me
 	return render_template('edit_user.html', form=form, user=g.user)
 
@@ -129,7 +119,7 @@ def add_animal():
 		db.session.add(animal)
 		db.session.commit()
 		flash('%s has been added' % form.name.data)
-		return redirect(url_for('user', nickname=g.user.nickname))
+		return redirect(url_for('user', google_id=g.user.google_id))
 	return render_template('add_animal.html', title='Add an animal', form=form)
 
 @app.route('/animal/<id>')
@@ -159,13 +149,13 @@ def animal(id):
 def uploads(img_name):
 	return send_from_directory(app.config['MEDIA_FOLDER'], img_name)
 
+@app.route('/qrcode/<id>')
+def qrcode(id):
+	return render_template('qrcode.html', id=id)
+
 @app.before_request
 def before_request():
 	g.user = current_user
-	if g.user.is_authenticated():
-		g.user.last_seen = datetime.utcnow()
-		db.session.add(g.user)
-		db.session.commit()
 
 @app.errorhandler(404)
 def not_found_error(error):

@@ -6,11 +6,9 @@
 {% include 'flash.html' %}
 {% from "_formhelper.html" import render_field %}
 <div class="well">
-	<img src="{{ user.get_avatar()|thumbnail('125x125', crop='fit') }}" class="Rounded Image" alt="{{ user.nickname }}">
+	<img src="{{ user.get_avatar() }}" class="Rounded Image" alt="{{ user.name }}" height="125" width="125">
     <form class="form-horizontal" action="" method="post" name="edit" enctype="multipart/form-data">
         {{form.hidden_tag()}}
-        {{ render_field(form.avatar) }}
-    	{{ render_field(form.nickname, maxlength=64) }}
         {{ render_field(form.about_me, cols=30,rows=4) }}
         <div class="control-group">
             <div class="controls">

@@ -8,10 +8,11 @@
         <img src="{{ animal.get_avatar()|thumbnail('125x125', crop='fit') }}" class="Rounded Image" alt="{{ animal.name }}">
     </div>
     <h1>{{animal.name}}</h1>
-    <p>Owner: <a href="{{url_for('user', nickname=animal.user_id.nickname)}}">{{ animal.user_id.nickname }}</a></p>
+    <p>Owner: <a href="{{url_for('user', google_id=animal.user_id.google_id)}}">{{ animal.user_id.name }}</a></p>
     {% if animal.dob %}<p><em>Age: {{ animal.age }}</em></p>{% endif %}
     {% if g.user.id == animal.user_id.id %}
-        <a href="{{url_for('edit_animal', id=animal.id)}}">Edit profile</a>
+        <a href="{{url_for('edit_animal', id=animal.id)}}">Edit profile</a> |
+        <a href="{{url_for('qrcode', id=animal.id) }}">QR Code</a>
     {% endif %}
     </p>
 </div>

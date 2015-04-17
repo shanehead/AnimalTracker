@@ -6,12 +6,11 @@ class Config(object):
 	WTF_CSRF_ENABLED = True
 	SECRET_KEY = 'q\\r8^!@uLcw/z90|y{c,6B56q2vw!mlG'
 	SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker"
-	OPENID_PROVIDERS = [
-		{'name': 'Google', 'url': 'https://www.google.com/accounts/o8/id'},
-		{'name': 'MyOpenID', 'url': 'https://www.myopenid.com'}
-	]
 	MEDIA_URL = '/uploads'
 	MEDIA_FOLDER = os.path.join(basedir, 'app' + MEDIA_URL)
+	GOOGLE_LOGIN_CLIENT_ID='128739772730-itrb3b45v3nnu99sdk5e4h8tvrkp2t4b.apps.googleusercontent.com'
+	GOOGLE_LOGIN_CLIENT_SECRET='iGPd2eQQFQRuXXItlUUc19UI'
+	GOOGLE_LOGIN_REDIRECT_URI='http://192.168.0.14:5000/oauth2callback'
 
 class DevConfig(Config):
 	ASSETS_DEBUG = True
