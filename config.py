@@ -13,7 +13,7 @@ class Config(object):
 	MEDIA_FOLDER = os.path.join(basedir, 'app' + MEDIA_URL)
 	GOOGLE_LOGIN_CLIENT_ID='128739772730-itrb3b45v3nnu99sdk5e4h8tvrkp2t4b.apps.googleusercontent.com'
 	GOOGLE_LOGIN_CLIENT_SECRET='iGPd2eQQFQRuXXItlUUc19UI'
-	GOOGLE_LOGIN_REDIRECT_URI='http://192.168.0.14:5000/oauth2callback'
+	GOOGLE_LOGIN_REDIRECT_URI='http://head-animal-tracker.herokuapp.com/oauth2callback'
 
 class DevConfig(Config):
 	ASSETS_DEBUG = True
