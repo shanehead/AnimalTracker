@@ -53,6 +53,6 @@ coverage.xml
 docs/_build/
 
 # Pycharm stuff
-.idea
+.idea/**
 
 *.DS_Store
