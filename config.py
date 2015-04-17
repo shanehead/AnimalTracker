@@ -24,7 +24,6 @@ class DevConfig(Config):
 	else:
 		SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker_dev"
 
-
 class TestConfig(Config):
 	TESTING = True
 	WTF_CSRF_ENABLED = False
