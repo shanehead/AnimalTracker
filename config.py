@@ -22,7 +22,7 @@ class DevConfig(Config):
 	DEBUG = True
 	WTF_CSRF_ENABLED = False
 	if os.environ.get('DATABASE_URL') is None:
-		SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker"
+		SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker_dev"
 	else:
 		SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
