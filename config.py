@@ -11,9 +11,11 @@ class Config(object):
 		SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 	MEDIA_URL = '/uploads'
 	MEDIA_FOLDER = os.path.join(basedir, 'app' + MEDIA_URL)
-	GOOGLE_LOGIN_CLIENT_ID='128739772730-itrb3b45v3nnu99sdk5e4h8tvrkp2t4b.apps.googleusercontent.com'
-	GOOGLE_LOGIN_CLIENT_SECRET='iGPd2eQQFQRuXXItlUUc19UI'
-	GOOGLE_LOGIN_REDIRECT_URI='http://head-animal-tracker.herokuapp.com/oauth2callback'
+	GOOGLE_LOGIN_CLIENT_ID = '128739772730-itrb3b45v3nnu99sdk5e4h8tvrkp2t4b.apps.googleusercontent.com'
+	GOOGLE_LOGIN_CLIENT_SECRET = 'iGPd2eQQFQRuXXItlUUc19UI'
+	OATH_CREDENTIALS = {'google':
+						   {'id': GOOGLE_LOGIN_CLIENT_ID,
+							'secret': GOOGLE_LOGIN_CLIENT_SECRET}}
 
 class DevConfig(Config):
 	ASSETS_DEBUG = True

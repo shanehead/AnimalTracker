@@ -1,4 +1,5 @@
-from app import app, db, lm, googlelogin
+from app import app, db, lm
+from auth import OAuthSignIn
 from flask import render_template, url_for, flash, redirect, session, request, g, send_from_directory
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from forms import UserEditForm, AddAnimalForm
@@ -16,36 +17,47 @@ def index():
 	# Send them to their home page if they are logged in
 	# login_required decorator will send them to the login page if they aren't
 	if g.user is not None and g.user.is_authenticated():
-		return redirect(url_for('user', google_id=g.user.google_id))
+		return redirect(url_for('user', id=g.user.id))
 
-@googlelogin.user_loader
 @lm.user_loader
-def load_user(google_id):
-	return User.query.filter_by(google_id=google_id).first()
+def load_user(id):
+	return User.query.filter_by(id=id).first()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	# Send them to their home page if they are logged in
-	#if g.user is not None and g.user.is_authenticated():
-	#	return redirect(url_for('user', google_id=g.user.google_id))
-	return render_template('login.html', title='Sign In', googlelogin=googlelogin)
+	if g.user is not None and g.user.is_authenticated():
+		return redirect(url_for('user', id=g.user.id))
+	return render_template('login.html', title='Sign In')
 
-@app.route('/oauth2callback')
-@googlelogin.oauth2callback
-def login_callback(token, userinfo, **params):
-	google_id = userinfo['id']
-	user = User.query.filter_by(google_id=google_id).first()
+@app.route('/callback/<provider>')
+def oauth_authorize(provider):
+	if not current_user.is_anonymous():
+		return redirect(url_for('index'))
+	oauth = OAuthSignIn.get_provider(provider)
+	return oauth.authorize()
+
+@app.route('/callback/<provider>')
+def oauth_callback(provider):
+	if not current_user.is_anonymous():
+		return redirect(url_for('user', id=g.user.id))
+	oauth = OauthSignIn.get_provider(provider)
+	username, email = oauth.callback()
+	if email is None:
+		flash('Authentication failed')
+		return redirect(url_for('index'))
+	user = User.query.filter_by(email=email).first()
 	if user is None:
-		user = User(google_id=google_id)
-		user.name = userinfo['name']
-		user.avatar = userinfo['picture']
+		name = username
+		if name is None or name == "":
+			name = email.split('@')[0]
+		user = User(email=email, name=name)
+		# @todo: avatar from picture
 		db.session.add(user)
 		db.session.commit()
-		session['token'] = json.dumps(token)
-		session['extra'] = params.get('extra')
 	login_user(user, remember=True)
 	g.user = user
-	return redirect(url_for('user', google_id=google_id))
+	return redirect(url_for('user', id=id))
 
 @app.route('/logout')
 def logout():
@@ -53,15 +65,15 @@ def logout():
 	g.user = None
 	return redirect(url_for('index'))
 
-@app.route('/user/<google_id>')
+@app.route('/user/<id>')
 @login_required
-def user(google_id):
-	if google_id == g.user.google_id:
+def user(id):
+	if id == g.user.id:
 		user = g.user
 	else:
-		user = User.query.filter_by(google_id=google_id).first()
+		user = User.query.filter_by(id=id).first()
 	if user == None:
-		flash('User %s not found.' % google_id)
+		flash('User %s not found.' % id)
 		return redirect(url_for('index'))
 	animals = user.animals.all()
 	return render_template('user.html', user=user, animals=animals)
@@ -75,7 +87,7 @@ def edit_user():
 		db.session.add(g.user)
 		db.session.commit()
 		flash('Your changes have been saved')
-		return redirect(url_for('user', google_id=g.user.google_id))
+		return redirect(url_for('user', id=g.user.id))
 	else:
 		form.about_me.data = g.user.about_me
 	return render_template('edit_user.html', form=form, user=g.user)
@@ -119,7 +131,7 @@ def add_animal():
 		db.session.add(animal)
 		db.session.commit()
 		flash('%s has been added' % form.name.data)
-		return redirect(url_for('user', google_id=g.user.google_id))
+		return redirect(url_for('user', id=g.user.id))
 	return render_template('add_animal.html', title='Add an animal', form=form)
 
 @app.route('/animal/<id>')

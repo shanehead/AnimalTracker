@@ -4,10 +4,6 @@ from wtforms import StringField, BooleanField, TextAreaField
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired, Length
 
-class LoginForm(Form):
-	openid = StringField('Or enter your OpenID here', validators=[DataRequired()])
-	remember_me = BooleanField('Remember me', default=False)
-
 class UserEditForm(Form):
 	about_me = TextAreaField('About Me', validators=[Length(min=0, max=140)])
 

@@ -1,6 +1,5 @@
 from flask import Flask
 from flask.ext.login import LoginManager
-from flask_googlelogin import GoogleLogin
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_thumbnails import Thumbnail
@@ -20,6 +19,5 @@ db = SQLAlchemy(app)
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
-googlelogin = GoogleLogin(app, lm)
 
 from app import views, models
