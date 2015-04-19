@@ -45,17 +45,19 @@ class GoogleSignIn(OAuthSignIn):
 		)
 
 	def authorize(self):
-		return redirect(self.service.get_authorize_url(scope='email',
-													   response_type='code',
-													   redirect_uri=self.get_callback_url()))
+		#return redirect(self.service.get_authorize_url(scope='email',
+		return redirect(self.service.get_authorize_url(
+			scope='https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+			response_type='code',
+			redirect_uri=self.get_callback_url()))
 
 	def callback(self):
 		if 'code' not in request.args:
-			return (None, None)
+			return (None, None, None)
 		oauth_session = self.service.get_auth_session(
 			data = {'code': request.args['code'],
 					'grant_type': 'authorization_code',
 					'redirect_uri': self.get_callback_url()},
 			decoder = json.loads)
 		me = oauth_session.get('').json()
-		return (me['name'], me['email'])
+		return (me['name'], me['email'], me['picture'])

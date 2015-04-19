@@ -30,7 +30,7 @@ def login():
 		return redirect(url_for('user', id=g.user.id))
 	return render_template('login.html', title='Sign In')
 
-@app.route('/callback/<provider>')
+@app.route('/authorize/<provider>')
 def oauth_authorize(provider):
 	if not current_user.is_anonymous():
 		return redirect(url_for('index'))
@@ -41,8 +41,8 @@ def oauth_authorize(provider):
 def oauth_callback(provider):
 	if not current_user.is_anonymous():
 		return redirect(url_for('user', id=g.user.id))
-	oauth = OauthSignIn.get_provider(provider)
-	username, email = oauth.callback()
+	oauth = OAuthSignIn.get_provider(provider)
+	username, email, picture = oauth.callback()
 	if email is None:
 		flash('Authentication failed')
 		return redirect(url_for('index'))
@@ -51,13 +51,13 @@ def oauth_callback(provider):
 		name = username
 		if name is None or name == "":
 			name = email.split('@')[0]
-		user = User(email=email, name=name)
+		user = User(email=email, name=name, avatar=picture)
 		# @todo: avatar from picture
 		db.session.add(user)
 		db.session.commit()
 	login_user(user, remember=True)
 	g.user = user
-	return redirect(url_for('user', id=id))
+	return redirect(url_for('user', id=g.user.id))
 
 @app.route('/logout')
 def logout():
