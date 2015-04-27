@@ -1,0 +1,29 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+{% from "_formhelper.html" import render_field %}
+
+{% if graph %}
+	{{ graph.plot_resources|indent(4)|safe }}
+	{{ graph.script|indent(4)|safe }}
+{% endif %}
+
+<a href="{{ url_for("add_weight", animal_id=animal.id) }}" class="btn btn-primary" role="button">Add Weight</a>
+{% if graph and form %}
+	{{  graph.div|indent(4)|safe }}
+    <div class="well">
+		<form class="form-horizontal" action="" method="post" name="graph_weight">
+			{{ form.hidden_tag() }}
+			{{ render_field(form.start_date) }}
+			{{ render_field(form.end_date) }}
+			<div class="control-group">
+				<div class="controls">
+					<input class="btn btn-primary" type="submit" value="Submit">
+				</div>
+			</div>
+		</form>
+	</div>
+{% endif %}
+{% endblock %}

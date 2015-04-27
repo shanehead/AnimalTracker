@@ -131,13 +131,13 @@ def add_animal():
 		return redirect(url_for('user', id=g.user.id))
 	return render_template('add_animal.html', title='Add an animal', form=form)
 
-@app.route('/animal/<id>', methods=['GET', 'POST'])
+@app.route('/animal/<id>')
 def animal(id):
 	animal = Animal.query.filter_by(id=id).first()
 	if animal == None:
 		flash('Animal with ID %d not found.' % id)
 		return redirect(url_for('index'))
-		# Calculate the age here
+	# Calculate the age here
 	delta = relativedelta(date.today(), animal.dob)
 	if delta.years != 0:
 		if delta.months != 0:
@@ -152,6 +152,14 @@ def animal(id):
 				animal.age = '%d months' % (delta.months, delta.years)
 		else:
 			animal.age = '%d days' % delta.days
+	return render_template('animal.html', animal=animal)
+
+@app.route('/weights/<id>', methods=['GET', 'POST'])
+def weights(id):
+	animal = Animal.query.filter_by(id=id).first()
+	if animal == None:
+		flash('Animal with ID %d not found.' % id)
+		return redirect(url_for('index'))
 	graph = None
 	form = None
 	weights = animal.weights.all()
@@ -162,10 +170,10 @@ def animal(id):
 		form = WeightGraphForm(start_date=first_date, end_date=last_date)
 		if request.method == 'POST' and form.validate_on_submit():
 			graph = plot_weight(animal, weights, form.start_date.data, form.end_date.data)
-			return encode_utf8(render_template('animal.html', form=form, animal=animal, graph=graph))
+			return encode_utf8(render_template('weights.html', form=form, animal=animal, graph=graph))
 		else:
 			graph = plot_weight(animal, weights, first_date, last_date)
-	return encode_utf8(render_template('animal.html', form=form, animal=animal, graph=graph))
+	return encode_utf8(render_template('weights.html', form=form, animal=animal, graph=graph))
 
 @app.route('/add_weight/<animal_id>', methods=['GET', 'POST'])
 @login_required
@@ -177,7 +185,7 @@ def add_weight(animal_id):
 		db.session.add(weight)
 		db.session.commit()
 		flash('Weight for %s has been added' % animal.name)
-		return redirect(url_for('animal', id=animal_id))
+		return redirect(url_for('weights', id=animal_id))
 	return render_template("add_weight.html", title="Add Weight", form=form, animal=animal)
 
 @app.route('/graph/')

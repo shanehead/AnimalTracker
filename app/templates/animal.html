@@ -5,39 +5,18 @@
 {% include 'flash.html' %}
 {% from "_formhelper.html" import render_field %}
 
-{% if graph %}
-	{{ graph.plot_resources|indent(4)|safe }}
-	{{ graph.script|indent(4)|safe }}
-{% endif %}
-
 <div class="well">
     <div class="pull-right">
         <img src="{{ animal.get_avatar() }}" width="125" height="125" class="Rounded Image" alt="{{ animal.name }}">
     </div>
     <h1>{{animal.name}}</h1>
-    <p>Owner: <a href="{{url_for('user', id=animal.user_id.id)}}">{{ animal.user_id.name }}</a></p>
+    <p>Owner: <a href="{{url_for('user', id=animal.user_id.id)}}"> <img src="{{ animal.user_id.get_avatar() }}" class="Rounded Image" alt="{{ animal.user_id.name }}" height="50" width="50"></a></p>
     {% if animal.dob %}<p><em>Age: {{ animal.age }}</em></p>{% endif %}
     {% if g.user.id == animal.user_id.id %}
-        <a href="{{url_for('edit_animal', id=animal.id)}}">Edit profile</a> |
-        <a href="{{url_for('qrcode', id=animal.id) }}">QR Code</a> |
-        <a href="{{url_for('add_weight', animal_id=animal.id) }}">Add Weight</a>
+        <a href="{{url_for('edit_animal', id=animal.id)}}" class="btn btn-primary" role="button">Edit profile</a>
+        <a href="{{url_for('qrcode', id=animal.id) }}" class="btn btn-primary" role="button">QR Code</a>
+        <a href="{{url_for('weights', id=animal.id) }}" class="btn btn-primary" role="button">Weight</a>
     {% endif %}
     </p>
 </div>
-
-{% if graph and form%}
-	<div class="well">
-		<form class="form-horizontal" action="" method="post" name="graph_weight">
-			{{ form.hidden_tag() }}
-			{{ render_field(form.start_date) }}
-			{{ render_field(form.end_date) }}
-			<div class="control-group">
-				<div class="controls">
-					<input class="btn btn-primary" type="submit" value="Submit">
-				</div>
-			</div>
-		</form>
-	</div>
-	{{  graph.div|indent(4)|safe }}
-{% endif %}
 {% endblock %}

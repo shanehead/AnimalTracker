@@ -20,6 +20,8 @@ def plot_weight(animal, weights=None, start_date=None, end_date=None):
 	# X Coordinates are the dates in our range, Y coordinates are the corresponding weights
 	x = []
 	y = []
+	# Sort the weights so the graph comes out correct
+	weights.sort(key=lambda z: z.date)
 	for weight in weights:
 		if weight.date >= start_date and weight.date <= end_date:
 			x.append(weight.date)
