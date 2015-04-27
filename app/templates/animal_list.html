@@ -10,7 +10,7 @@
     {% for animal in animals %}
 		<tr>
             <td>
-            	<a href="{{ url_for('animal', id=animal.id) }}"><img src="{{ animal.get_avatar()|thumbnail('125x125', crop='fit') }}" class="Rounded Image" alt="{{ animal.name }}"></a>
+            	<a href="{{ url_for('animal', id=animal.id) }}"><img src="{{ animal.get_avatar() }}" class="Rounded Image" alt="{{ animal.name }}" width="125" height="125"></a>
             </td>
 			<td><p>Name: {{ animal.name }}</p></td>
 			<td><p>Species: {{ animal.species_common }}</p></td>

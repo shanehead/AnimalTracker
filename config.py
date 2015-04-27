@@ -9,13 +9,16 @@ class Config(object):
 		SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker"
 	else:
 		SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-	MEDIA_URL = '/uploads'
-	MEDIA_FOLDER = os.path.join(basedir, 'app' + MEDIA_URL)
 	GOOGLE_LOGIN_CLIENT_ID = '128739772730-itrb3b45v3nnu99sdk5e4h8tvrkp2t4b.apps.googleusercontent.com'
 	GOOGLE_LOGIN_CLIENT_SECRET = 'iGPd2eQQFQRuXXItlUUc19UI'
 	OATH_CREDENTIALS = {'google':
 						   {'id': GOOGLE_LOGIN_CLIENT_ID,
 							'secret': GOOGLE_LOGIN_CLIENT_SECRET}}
+
+	AWS_ACCESS_KEY_ID = 'AKIAIGMQZEO2BX4W7Q3Q'
+	AWS_SECRET_ACCESS_KEY = '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'
+	S3_BUCKET_NAME = 'animal-tracker'
+	S3_UPLOAD_DIRECTORY = 'uploads'
 
 class DevConfig(Config):
 	ASSETS_DEBUG = True

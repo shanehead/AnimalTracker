@@ -1,14 +1,14 @@
 from app import app, db, lm
 from auth import OAuthSignIn
-from flask import render_template, url_for, flash, redirect, session, request, g, send_from_directory
+from flask import render_template, url_for, flash, redirect, session, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from forms import UserEditForm, AddAnimalForm
-from models import User, Animal
+from forms import UserEditForm, AddAnimalForm, AddWeightForm, WeightGraphForm
+from models import User, Animal, AnimalWeight
 from datetime import date
-from uuid import uuid4
-from werkzeug import secure_filename
 from dateutil.relativedelta import relativedelta
-import json
+from graphs import plot_weight
+from bokeh.util.string import encode_utf8
+from tools import s3_upload
 
 @app.route('/')
 @app.route('/index')
@@ -52,7 +52,6 @@ def oauth_callback(provider):
 		if name is None or name == "":
 			name = email.split('@')[0]
 		user = User(email=email, name=name, avatar=picture)
-		# @todo: avatar from picture
 		db.session.add(user)
 		db.session.commit()
 	login_user(user, remember=True)
@@ -103,9 +102,8 @@ def edit_animal(id):
 		animal.species_common = form.species_common.data
 		animal.dob = form.dob.data
 		if form.avatar.data:
-			animal.avatar = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
-			photo_path = app.config['MEDIA_FOLDER'] + '/' + animal.avatar
-			form.avatar.data.save(photo_path)
+			photo_path = s3_upload(form.avatar)
+			animal.avatar = photo_path
 		db.session.add(animal)
 		db.session.commit()
 		flash('Your changes have been saved')
@@ -122,25 +120,24 @@ def edit_animal(id):
 def add_animal():
 	form = AddAnimalForm()
 	if request.method == 'POST' and form.validate_on_submit():
-		photo_filename = "%s_%s" % (uuid4(), secure_filename(form.avatar.data.filename))
-		photo_path = app.config['MEDIA_FOLDER'] + '/' + photo_filename
+		photo_path = s3_upload(form.avatar)
 		animal = Animal(name=form.name.data, species=form.species.data,
-						species_common=form.species_common.data, dob=form.dob.data, owner=g.user.id)
-		animal.avatar = photo_filename
-		form.avatar.data.save(photo_path)
+						species_common=form.species_common.data, dob=form.dob.data,
+						owner=g.user.id, weight_units=form.weight_units.data)
+		animal.avatar = photo_path
 		db.session.add(animal)
 		db.session.commit()
 		flash('%s has been added' % form.name.data)
 		return redirect(url_for('user', id=g.user.id))
 	return render_template('add_animal.html', title='Add an animal', form=form)
 
-@app.route('/animal/<id>')
+@app.route('/animal/<id>', methods=['GET', 'POST'])
 def animal(id):
 	animal = Animal.query.filter_by(id=id).first()
 	if animal == None:
 		flash('Animal with ID %d not found.' % id)
 		return redirect(url_for('index'))
-	# Calculate the age here
+		# Calculate the age here
 	delta = relativedelta(date.today(), animal.dob)
 	if delta.years != 0:
 		if delta.months != 0:
@@ -155,11 +152,35 @@ def animal(id):
 				animal.age = '%d months' % (delta.months, delta.years)
 		else:
 			animal.age = '%d days' % delta.days
-	return render_template('animal.html', animal=animal)
+	graph = None
+	form = None
+	weights = animal.weights.all()
+	if weights is not None and len(weights) != 0:
+		dates = [x.date for x in weights]
+		first_date = min(dates)
+		last_date = max(dates)
+		form = WeightGraphForm(start_date=first_date, end_date=last_date)
+		if request.method == 'POST' and form.validate_on_submit():
+			graph = plot_weight(animal, weights, form.start_date.data, form.end_date.data)
+			return encode_utf8(render_template('animal.html', form=form, animal=animal, graph=graph))
+		else:
+			graph = plot_weight(animal, weights, first_date, last_date)
+	return encode_utf8(render_template('animal.html', form=form, animal=animal, graph=graph))
 
-@app.route('/uploads/<img_name>')
-def uploads(img_name):
-	return send_from_directory(app.config['MEDIA_FOLDER'], img_name)
+@app.route('/add_weight/<animal_id>', methods=['GET', 'POST'])
+@login_required
+def add_weight(animal_id):
+	animal = Animal.query.filter_by(id=animal_id).first()
+	form = AddWeightForm()
+	if request.method == 'POST' and form.validate_on_submit():
+		weight = AnimalWeight(animal=animal_id, weight=form.weight.data, date=form.date.data)
+		db.session.add(weight)
+		db.session.commit()
+		flash('Weight for %s has been added' % animal.name)
+		return redirect(url_for('animal', id=animal_id))
+	return render_template("add_weight.html", title="Add Weight", form=form, animal=animal)
+
+@app.route('/graph/')
 
 @app.route('/qrcode/<id>')
 def qrcode(id):

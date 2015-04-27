@@ -30,6 +30,8 @@ class Animal(db.Model):
 	dob = db.Column(db.Date)
 	owner = db.Column(db.Integer, db.ForeignKey('users.id'))
 	avatar = db.Column(db.String)
+	weights = db.relationship("AnimalWeight", backref='animal_id', lazy='dynamic')
+	weight_units = db.Column(db.String)
 
 	def get_avatar(self):
 		return self.avatar or ''
@@ -38,7 +40,7 @@ class AnimalWeight(db.Model):
 	__tablename__ = 'weights'
 
 	id = db.Column(db.Integer, primary_key=True)
-	# @todo - Pounds? Kilograms? Grams?
 	weight = db.Column(db.Float, nullable=False)
 	date = db.Column(db.Date, nullable=False)
 	animal = db.Column(db.Integer, db.ForeignKey('animals.id'))
+
