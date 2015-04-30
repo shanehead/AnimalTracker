@@ -2,8 +2,8 @@ from app import app, db, lm
 from auth import OAuthSignIn
 from flask import render_template, url_for, flash, redirect, session, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from forms import UserEditForm, AddAnimalForm, AddWeightForm, WeightGraphForm
-from models import User, Animal, AnimalWeight
+from forms import UserEditForm, AddAnimalForm, AddWeightForm, WeightGraphForm, AddAlertForm
+from models import User, Animal, AnimalWeight, Alert
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from graphs import plot_weight
@@ -123,7 +123,7 @@ def add_animal():
 		photo_path = s3_upload(form.avatar)
 		animal = Animal(name=form.name.data, species=form.species.data,
 						species_common=form.species_common.data, dob=form.dob.data,
-						owner=g.user.id, weight_units=form.weight_units.data)
+						owner_id=g.user.id, weight_units=form.weight_units.data)
 		animal.avatar = photo_path
 		db.session.add(animal)
 		db.session.commit()
@@ -173,7 +173,7 @@ def weights(id):
 			return encode_utf8(render_template('weights.html', form=form, animal=animal, graph=graph))
 		else:
 			graph = plot_weight(animal, weights, first_date, last_date)
-	return encode_utf8(render_template('weights.html', form=form, animal=animal, graph=graph))
+	return encode_utf8(render_template('weights.html', title="Weights", form=form, animal=animal, graph=graph))
 
 @app.route('/add_weight/<animal_id>', methods=['GET', 'POST'])
 @login_required
@@ -181,14 +181,62 @@ def add_weight(animal_id):
 	animal = Animal.query.filter_by(id=animal_id).first()
 	form = AddWeightForm()
 	if request.method == 'POST' and form.validate_on_submit():
-		weight = AnimalWeight(animal=animal_id, weight=form.weight.data, date=form.date.data)
+		weight = AnimalWeight(animal_id=animal_id, weight=form.weight.data, date=form.date.data)
 		db.session.add(weight)
 		db.session.commit()
-		flash('Weight for %s has been added' % animal.name)
+		flash("Weight for %s has been added" % animal.name)
 		return redirect(url_for('weights', id=animal_id))
-	return render_template("add_weight.html", title="Add Weight", form=form, animal=animal)
+	return render_template("add_weight.html", title="Add Weight", form=form, animal_id=animal)
 
-@app.route('/graph/')
+@app.route('/alerts')
+@login_required
+def alerts():
+	alerts = g.user.alerts.all()
+	return render_template("alerts.html", title="Alerts", user=g.user, alerts=alerts)
+
+@app.route('/add_alert', methods=['GET', 'POST'])
+@login_required
+def add_alert():
+	animals = Animal.query.filter_by(owner_id=g.user.id).all()
+	form = AddAlertForm(animals=animals)
+	if request.method == 'POST' and form.validate_on_submit():
+		alert = Alert(start=form.start.data, end=form.end.data, message=form.message.data,
+					  name=form.name.data, repeat_period=form.repeat_period.data,
+					  repeat_number=form.repeat_number.data, user_id=g.user.id,
+					  animal_id=form.animal.data)
+		db.session.add(alert)
+		db.session.commit()
+		flash("Alert '%s' has been added" % alert.name)
+		return redirect(url_for('alerts'))
+	return render_template("add_alert.html", title="Add Alert", user=g.user, form=form)
+
+@app.route('/edit_alert/<alert_id>', methods=['GET', 'POST'])
+@login_required
+def edit_alert(alert_id):
+	alert = Alert.query.filter_by(id=alert_id).first()
+	animals = Animal.query.filter_by(owner_id=g.user.id).all()
+	form = AddAlertForm(animals=animals)
+	if request.method == 'POST' and form.validate_on_submit():
+		alert.start = form.start.data
+		alert.end = form.end.data
+		alert.message = form.message.data
+		alert.name = form.name.data
+		alert.repeat_number = form.repeat_number.data
+		alert.repeat_period = form.repeat_period.data
+		alert.animal_id = form.animal.data
+		db.session.add(alert)
+		db.session.commit()
+		flash("Your changes have been saved")
+		return redirect(url_for('alerts'))
+	else:
+		form.start.data = alert.start
+		form.end.data = alert.end
+		form.message.data = alert.message
+		form.name.data = alert.name
+		form.repeat_number.data = alert.repeat_number
+		form.repeat_period.data = alert.repeat_period
+		form.animal.data = alert.animal_id
+	return render_template("edit_alert.html", title="Edit Alert", user=g.user, form=form)
 
 @app.route('/qrcode/<id>')
 def qrcode(id):

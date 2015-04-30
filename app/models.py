@@ -8,8 +8,10 @@ class User(db.Model, UserMixin):
 	name = db.Column(db.String(64), index=True, unique=True)
 	email = db.Column(db.String(120), index=True, unique=True)
 	about_me = db.Column(db.String(140))
-	animals = db.relationship("Animal", backref='user_id', lazy='dynamic')
 	avatar = db.Column(db.String)
+
+	animals = db.relationship("Animal", backref='owner', lazy='dynamic')
+	alerts = db.relationship("Alert", backref='user', lazy='dynamic')
 
 	def get_avatar(self):
 		return self.avatar or ''
@@ -28,10 +30,12 @@ class Animal(db.Model):
 	species = db.Column(db.String(100))
 	species_common = db.Column(db.String(100))
 	dob = db.Column(db.Date)
-	owner = db.Column(db.Integer, db.ForeignKey('users.id'))
 	avatar = db.Column(db.String)
-	weights = db.relationship("AnimalWeight", backref='animal_id', lazy='dynamic')
 	weight_units = db.Column(db.String)
+
+	owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+	weights = db.relationship("AnimalWeight", backref='animal', lazy='dynamic')
+	alerts = db.relationship("Alert", backref='animal', lazy='dynamic')
 
 	def get_avatar(self):
 		return self.avatar or ''
@@ -42,5 +46,19 @@ class AnimalWeight(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	weight = db.Column(db.Float, nullable=False)
 	date = db.Column(db.Date, nullable=False)
-	animal = db.Column(db.Integer, db.ForeignKey('animals.id'))
 
+	animal_id = db.Column(db.Integer, db.ForeignKey('animals.id'))
+
+class Alert(db.Model):
+	__tablename__ = 'alerts'
+
+	id = db.Column(db.Integer, primary_key=True)
+	start = db.Column(db.DateTime, nullable=False)
+	end = db.Column(db.DateTime)
+	message = db.Column(db.String, nullable=False)
+	name = db.Column(db.String, nullable=False)
+	repeat_period = db.Column(db.String(10))
+	repeat_number = db.Column(db.Integer)
+
+	animal_id = db.Column(db.Integer, db.ForeignKey('animals.id'))
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))

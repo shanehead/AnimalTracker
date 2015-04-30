@@ -1,10 +1,11 @@
 from flask.ext.wtf import Form
-from wtforms.ext.dateutil.fields import DateField
-from wtforms import StringField, TextAreaField, DecimalField, SelectField
+from wtforms.ext.dateutil.fields import DateField, DateTimeField
+from wtforms import StringField, TextAreaField, DecimalField, SelectField, IntegerField
 from flask_wtf.file import FileField, FileAllowed
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, optional
 
 WEIGHT_UNITS = [('lbs', 'lbs'), ('kg', 'kg'), ('g', 'g')]
+PERIOD_UNITS = [(None, None), ('days', 'days'), ('weeks', 'weeks'), ('months', 'months')]
 
 class UserEditForm(Form):
 	about_me = TextAreaField('About Me', validators=[Length(min=0, max=140)])
@@ -29,3 +30,19 @@ class WeightGraphForm(Form):
 		Form.__init__(self, *args, **kwargs)
 		self.start_date.default = start_date
 		self.end_date.default = end_date
+
+class AddAlertForm(Form):
+	name = StringField('Name', validators=[DataRequired()])
+	start = DateTimeField('Start Datetime', validators=[DataRequired()])
+	end = DateTimeField('End Datetime', validators=[optional()])
+	message = StringField('Message', validators=[DataRequired()])
+	repeat_period = SelectField('Repeat Period', choices=PERIOD_UNITS)
+	repeat_number = IntegerField('Repeat Number', validators=[optional()])
+	animal = SelectField('Animal', coerce=int)
+
+	def __init__(self, animals, *args, **kwargs):
+		Form.__init__(self, *args, **kwargs)
+		animal_ids = [x.id for x in animals]
+		animal_names = [x.name for x in animals]
+		self.animal.choices = zip(animal_ids, animal_names)
+
