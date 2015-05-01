@@ -200,7 +200,7 @@ def add_alert():
 	animals = Animal.query.filter_by(owner_id=g.user.id).all()
 	form = AddAlertForm(animals=animals)
 	if request.method == 'POST' and form.validate_on_submit():
-		alert = Alert(start=form.start.data, end=form.end.data, message=form.message.data,
+		alert = Alert(start_date=form.start.data, end_date=form.end.data, message=form.message.data,
 					  name=form.name.data, repeat_period=form.repeat_period.data,
 					  repeat_number=form.repeat_number.data, user_id=g.user.id,
 					  animal_id=form.animal.data)
@@ -217,8 +217,8 @@ def edit_alert(alert_id):
 	animals = Animal.query.filter_by(owner_id=g.user.id).all()
 	form = AddAlertForm(animals=animals)
 	if request.method == 'POST' and form.validate_on_submit():
-		alert.start = form.start.data
-		alert.end = form.end.data
+		alert.start_date = form.start.data
+		alert.end_date = form.end.data
 		alert.message = form.message.data
 		alert.name = form.name.data
 		alert.repeat_number = form.repeat_number.data
@@ -229,8 +229,8 @@ def edit_alert(alert_id):
 		flash("Your changes have been saved")
 		return redirect(url_for('alerts'))
 	else:
-		form.start.data = alert.start
-		form.end.data = alert.end
+		form.start.data = alert.start_date
+		form.end.data = alert.end_date
 		form.message.data = alert.message
 		form.name.data = alert.name
 		form.repeat_number.data = alert.repeat_number

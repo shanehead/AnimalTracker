@@ -53,8 +53,8 @@ class Alert(db.Model):
 	__tablename__ = 'alerts'
 
 	id = db.Column(db.Integer, primary_key=True)
-	start = db.Column(db.DateTime, nullable=False)
-	end = db.Column(db.DateTime)
+	start_date = db.Column(db.DateTime, nullable=False)
+	end_date = db.Column(db.DateTime)
 	message = db.Column(db.String, nullable=False)
 	name = db.Column(db.String, nullable=False)
 	repeat_period = db.Column(db.String(10))

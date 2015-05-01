@@ -20,6 +20,14 @@ class Config(object):
 	S3_BUCKET_NAME = 'animal-tracker'
 	S3_UPLOAD_DIRECTORY = 'uploads'
 
+	#Email
+	MAIL_SERVER = 'smtp.gmail.com'
+	MAIL_PORT = 587
+	MAIL_USE_SSL = False
+	MAIL_USE_TLS = True
+	MAIL_USERNAME = 'shane.head@gmail.com'
+	MAIL_PASSWORD = 'jcykdcwbowmbxabi'
+
 class DevConfig(Config):
 	ASSETS_DEBUG = True
 	DEBUG = True

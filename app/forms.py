@@ -5,7 +5,8 @@ from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired, Length, optional
 
 WEIGHT_UNITS = [('lbs', 'lbs'), ('kg', 'kg'), ('g', 'g')]
-PERIOD_UNITS = [(None, None), ('days', 'days'), ('weeks', 'weeks'), ('months', 'months')]
+PERIOD_UNITS = [(None, None), ('days', 'days'), ('weeks', 'weeks'),
+				('months', 'months'), ('years', 'years')]
 
 class UserEditForm(Form):
 	about_me = TextAreaField('About Me', validators=[Length(min=0, max=140)])
