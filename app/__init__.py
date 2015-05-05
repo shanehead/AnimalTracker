@@ -4,6 +4,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask.ext.qrcode import QRcode
 from flask.ext.mail import Mail
+from flask.ext.bower import Bower
 from config import DevConfig
 from momentjs import momentjs
 
@@ -13,6 +14,7 @@ app.jinja_env.globals['momentjs'] = momentjs
 bootstrap = Bootstrap(app)
 QRcode(app)
 mail = Mail(app)
+Bower(app)
 
 db = SQLAlchemy(app)
 

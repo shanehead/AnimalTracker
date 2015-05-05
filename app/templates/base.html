@@ -6,10 +6,21 @@
 
 {% block metas %}
 {{ super() }}
-	<script src="/static/js/moment.js"></script>
     <meta charset="'utf-8" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href={{ url_for('bower.static', filename="bootstrap/dist/css/bootstrap.min.css") }}/>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src={{ url_for('bower.static', filename="jquery/dist/jquery.min.js") }}></script>
+  	<script type="text/javascript" src={{ url_for('bower.static', filename="moment/min/moment.min.js") }}></script>
+  	<script type="text/javascript" src={{ url_for('bower.static',
+            							filename="bootstrap/dist/js/bootstrap.min.js") }}></script>
+{% endblock %}
+
 
 {% block navbar %}
 <nav role="navigation" class="navbar navbar-default">

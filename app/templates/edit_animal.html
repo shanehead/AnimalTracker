@@ -4,22 +4,18 @@
 {% block content %}
 <h1>Edit Your Animal</h1>
 {% include 'flash.html' %}
-{% from "_formhelper.html" import render_field %}
+{% from "_formhelper.html" import form_field %}
 <div class="well">
 	<img src="{{ animal.get_avatar() }}" class="Rounded Image" alt="{{ animal.name }}" width="125" height="125">
     <form class="form-horizontal" action="" method="post" name="edit_animal" enctype="multipart/form-data">
     	{{ form.hidden_tag() }}
-		{{ render_field(form.avatar) }}
-		{{ render_field(form.name) }}
-		{{ render_field(form.species) }}
-		{{ render_field(form.species_common) }}
-        {{ render_field(form.weight_units) }}
-		{{ render_field(form.dob) }}
-        <div class="control-group">
-            <div class="controls">
-                <input class="btn btn-primary" type="submit" value="Save Changes">
-            </div>
-        </div>
+		{{ form_field(form, form.avatar) }}
+		{{ form_field(form, form.name) }}
+		{{ form_field(form, form.species) }}
+		{{ form_field(form, form.species_common) }}
+        {{ form_field(form, form.weight_units) }}
+		{{ form_field(form, form.dob) }}
+		<input class="btn btn-primary" type="submit" value="Save Changes">
     </form>
 </div>
 {% endblock %}

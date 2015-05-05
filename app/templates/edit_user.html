@@ -4,12 +4,12 @@
 {% block content %}
 <h1>Edit Your Profile</h1>
 {% include 'flash.html' %}
-{% from "_formhelper.html" import render_field %}
+{% from "_formhelper.html" import form_field %}
 <div class="well">
 	<img src="{{ user.get_avatar() }}" class="Rounded Image" alt="{{ user.name }}" height="125" width="125">
     <form class="form-horizontal" action="" method="post" name="edit" enctype="multipart/form-data">
         {{form.hidden_tag()}}
-        {{ render_field(form.about_me, cols=30,rows=4) }}
+        {{ form_field(form, form.about_me, cols=30,rows=4) }}
         <div class="control-group">
             <div class="controls">
                 <input class="btn btn-primary" type="submit" value="Save Changes">

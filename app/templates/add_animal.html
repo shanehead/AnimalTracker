@@ -3,22 +3,17 @@
 
 {% block content %}
 {% include 'flash.html' %}
-{% from "_formhelper.html" import render_field %}
+{% from "_formhelper.html" import form_field %}
 <div class="well">
 	<form class="form-horizontal" method="post" action="" name="add_animal" enctype="multipart/form-data">
 		{{ form.hidden_tag() }}
-		{{ render_field(form.name) }}
-		{{ render_field(form.species) }}
-		{{ render_field(form.species_common) }}
-		{{ render_field(form.dob) }}
-        {{ render_field(form.weight_units) }}
-		{{ render_field(form.avatar) }}
-		<p>
-		<div class="control-group">
-			<div class="controls">
-				<input class = "btn btn-primary" type=submit value="Add Animal">
-			</div>
-		</div>
+		{{ form_field(form, form.name) }}
+		{{ form_field(form, form.species) }}
+		{{ form_field(form, form.species_common) }}
+		{{ form_field(form, form.dob) }}
+        {{ form_field(form, form.weight_units) }}
+		{{ form_field(form, form.avatar) }}
+		<input class = "btn btn-primary" type=submit value="Add Animal">
 	</form>
 </div>
 {% endblock %}

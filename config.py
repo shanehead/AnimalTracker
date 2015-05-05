@@ -19,6 +19,7 @@ class Config(object):
 	AWS_SECRET_ACCESS_KEY = 'EdS03HQUEIR0jAkhSm0276AMLRZWtXL6gOYmIBGz'
 	S3_BUCKET_NAME = 'animal-tracker'
 	S3_UPLOAD_DIRECTORY = 'uploads'
+	BOWER_COMPONENTS_ROOT = 'bower_components'
 
 	#Email
 	MAIL_SERVER = 'smtp.gmail.com'

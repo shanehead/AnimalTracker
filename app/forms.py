@@ -21,16 +21,16 @@ class AddAnimalForm(Form):
 
 class AddWeightForm(Form):
 	weight = DecimalField('Weight', validators=[DataRequired()])
-	date = DateField('Date', display_format='%m/%d/%Y')
+	date = DateField('Date', display_format='%m/%d/%Y', validators=[DataRequired()])
 
 class WeightGraphForm(Form):
-	start_date = DateField('Start Date', display_format='%m/%d/%Y')
-	end_date = DateField('End Date', display_format='%m/%d/%Y')
+	start_date = DateField('Start Date', display_format='%m/%d/%Y', validators=[DataRequired()])
+	end_date = DateField('End Date', display_format='%m/%d/%Y', validators=[DataRequired()])
 
 	def __init__(self, start_date, end_date, *args, **kwargs):
 		Form.__init__(self, *args, **kwargs)
-		self.start_date.default = start_date
-		self.end_date.default = end_date
+		self.start_date.data = start_date
+		self.end_date.data = end_date
 
 class AddAlertForm(Form):
 	name = StringField('Name', validators=[DataRequired()])
