@@ -1,0 +1,14 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+{% from "_formhelper.html" import form_field %}
+<div class="well">
+	<form class="form-inline" method="post" action="" name="add_animal_note">
+		{{ form.hidden_tag() }}
+        {{ form_field(form, form.note) }}
+		<input class = "btn btn-primary" type=submit value="Add Note">
+	</form>
+</div>
+{% endblock %}

@@ -1,13 +1,12 @@
 from app import app, db, lm
 from auth import OAuthSignIn
-from flask import render_template, url_for, flash, redirect, session, request, g
+from flask import render_template, url_for, flash, redirect, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from forms import UserEditForm, AddAnimalForm, AddWeightForm, WeightGraphForm, AddAlertForm
-from models import User, Animal, AnimalWeight, Alert
+from forms import UserEditForm, AddAnimalForm, AddWeightForm, WeightGraphForm, AddAlertForm, AddAnimalNoteForm
+from models import User, Animal, AnimalWeight, Alert, AnimalNote
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from graphs import plot_weight
-from bokeh.util.string import encode_utf8
 from tools import s3_upload
 
 @app.route('/')
@@ -16,7 +15,7 @@ from tools import s3_upload
 def index():
 	# Send them to their home page if they are logged in
 	# login_required decorator will send them to the login page if they aren't
-	if g.user is not None and g.user.is_authenticated():
+	if g.user is not None and g.user.is_authenticated:
 		return redirect(url_for('user', id=g.user.id))
 
 @lm.user_loader
@@ -26,36 +25,36 @@ def load_user(id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	# Send them to their home page if they are logged in
-	if g.user is not None and g.user.is_authenticated():
+	if g.user is not None and g.user.is_authenticated:
 		return redirect(url_for('user', id=g.user.id))
 	return render_template('login.html', title='Sign In')
 
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
-	if not current_user.is_anonymous():
+	if not current_user.is_anonymous:
 		return redirect(url_for('index'))
 	oauth = OAuthSignIn.get_provider(provider)
 	return oauth.authorize()
 
 @app.route('/callback/<provider>')
 def oauth_callback(provider):
-	if not current_user.is_anonymous():
+	if not current_user.is_anonymous:
 		return redirect(url_for('user', id=g.user.id))
 	oauth = OAuthSignIn.get_provider(provider)
 	username, email, picture = oauth.callback()
 	if email is None:
 		flash('Authentication failed')
 		return redirect(url_for('index'))
-	user = User.query.filter_by(email=email).first()
-	if user is None:
+	this_user = User.query.filter_by(email=email).first()
+	if this_user is None:
 		name = username
 		if name is None or name == "":
 			name = email.split('@')[0]
-		user = User(email=email, name=name, avatar=picture)
-		db.session.add(user)
+		this_user = User(email=email, name=name, avatar=picture)
+		db.session.add(this_user)
 		db.session.commit()
-	login_user(user, remember=True)
-	g.user = user
+	login_user(this_user, remember=True)
+	g.user = this_user
 	return redirect(url_for('user', id=g.user.id))
 
 @app.route('/logout')
@@ -68,14 +67,14 @@ def logout():
 @login_required
 def user(id):
 	if id == g.user.id:
-		user = g.user
+		this_user = g.user
 	else:
-		user = User.query.filter_by(id=id).first()
-	if user == None:
+		this_user = User.query.filter_by(id=id).first()
+	if this_user == None:
 		flash('User %s not found.' % id)
 		return redirect(url_for('index'))
-	animals = user.animals.all()
-	return render_template('user.html', user=user, animals=animals)
+	animals = this_user.animals.all()
+	return render_template('user.html', user=this_user, animals=animals)
 
 @app.route('/edit_user', methods=['GET', 'POST'])
 @login_required
@@ -170,10 +169,10 @@ def weights(id):
 		form = WeightGraphForm(start_date=first_date, end_date=last_date)
 		if request.method == 'POST' and form.validate_on_submit():
 			graph = plot_weight(animal, weights, form.start_date.data, form.end_date.data)
-			return encode_utf8(render_template('weights.html', form=form, animal=animal, graph=graph))
+			return render_template('weights.html', form=form, animal=animal, graph=graph)
 		else:
 			graph = plot_weight(animal, weights, first_date, last_date)
-	return encode_utf8(render_template('weights.html', title="Weights", form=form, animal=animal, graph=graph))
+	return render_template('weights.html', title="Weights", form=form, animal=animal, graph=graph)
 
 @app.route('/add_weight/<animal_id>', methods=['GET', 'POST'])
 @login_required
@@ -188,6 +187,19 @@ def add_weight(animal_id):
 		return redirect(url_for('weights', id=animal_id))
 	return render_template("add_weight.html", title="Add Weight", form=form, animal_id=animal)
 
+@app.route('/add_animal_note/<animal_id>', methods=['GET', 'POST'])
+@login_required
+def add_animal_note(animal_id):
+	animal = Animal.query.filter_by(id=animal_id).first()
+	form = AddAnimalNoteForm()
+	if request.method == 'POST' and form.validate_on_submit():
+		note = AnimalNote(animal_id=animal_id, note=form.note.data)
+		db.session.add(note)
+		db.session.commit()
+		flash("Note for %s has been added" % animal.name)
+		return redirect(url_for('animal', id=animal_id))
+
+	return render_template("add_animal_note.html", title="Add Note", form=form, animal_id=animal)
 @app.route('/alerts')
 @login_required
 def alerts():

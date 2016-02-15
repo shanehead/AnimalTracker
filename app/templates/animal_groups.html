@@ -1,0 +1,9 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+{% include 'user_header.html' %}
+<a href="{{ url_for('add_animal_group') }}" class="btn btn-primary" role="button">Add Alert</a>
+{% include 'animal_group_list.html' %}
+{% endblock %}

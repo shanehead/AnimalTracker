@@ -10,4 +10,7 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 if __name__ == '__main__':
+    # init - First initialization
+    # migrate - Get latest model updates
+    # upgrade - Perform the upgrade
     manager.run()

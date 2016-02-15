@@ -23,6 +23,9 @@ class AddWeightForm(Form):
 	weight = DecimalField('Weight', validators=[DataRequired()])
 	date = DateField('Date', display_format='%m/%d/%Y', validators=[DataRequired()])
 
+class AddAnimalNoteForm(Form):
+	note = TextAreaField('Note', validators=[DataRequired()])
+
 class WeightGraphForm(Form):
 	start_date = DateField('Start Date', display_format='%m/%d/%Y', validators=[DataRequired()])
 	end_date = DateField('End Date', display_format='%m/%d/%Y', validators=[DataRequired()])
@@ -47,3 +50,5 @@ class AddAlertForm(Form):
 		animal_names = [x.name for x in animals]
 		self.animal.choices = zip(animal_ids, animal_names)
 
+class AddAnimalGroup(Form):
+	name = StringField('Name', validators=[DataRequired()])

@@ -1,22 +1,22 @@
-<table class="table table-hover">
-    <thead>
-    	<tr>
-    		<th></th>
-            <th>Name</th>
-            <th>Species</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for animal in animals %}
-		<tr>
-            <td>
-            	<a href="{{ url_for('animal', id=animal.id) }}"><img src="{{ animal.get_avatar() }}" class="Rounded Image" alt="{{ animal.name }}" width="125" height="125"></a>
-            </td>
-			<td><p>Name: {{ animal.name }}</p></td>
-			<td><p>Species: {{ animal.species_common }}</p></td>
-		</tr>
-    {% endfor %}
-    </tbody>
-</table>
-
-
+<div class="table-responsive">
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Name</th>
+				<th>Species</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for animal in animals %}
+			<tr>
+				<td>
+					<a href="{{ url_for('animal', id=animal.id) }}"><img src="{{ animal.get_avatar() }}" class="img-responsive" alt="{{ animal.name }}" width="125" height="125"></a>
+				</td>
+				<td><p>Name: {{ animal.name }}</p></td>
+				<td><p>Species: {{ animal.species_common }}</p></td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>

@@ -34,7 +34,9 @@ class Animal(db.Model):
 	weight_units = db.Column(db.String)
 
 	owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+	group_id = db.Column(db.Integer, db.ForeignKey('animal_group.id'))
 	weights = db.relationship("AnimalWeight", backref='animal', lazy='dynamic')
+	notes = db.relationship("AnimalNote", backref='animal', lazy='dynamic')
 	alerts = db.relationship("Alert", backref='animal', lazy='dynamic')
 
 	def get_avatar(self):
@@ -48,6 +50,21 @@ class AnimalWeight(db.Model):
 	date = db.Column(db.Date, nullable=False)
 
 	animal_id = db.Column(db.Integer, db.ForeignKey('animals.id'))
+
+class AnimalGroup(db.Model):
+	__tablename__ = 'animal_group'
+
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String, nullable=False)
+
+class AnimalNote(db.Model):
+	__tablename__ = 'animal_notes'
+
+	id = db.Column(db.Integer, primary_key=True)
+	date = db.Column(db.DateTime, nullable=False, server_default=db.text('now()'))
+	note = db.Column(db.String, nullable=False)
+	animal_id = db.Column(db.Integer, db.ForeignKey('animals.id'))
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 class Alert(db.Model):
 	__tablename__ = 'alerts'

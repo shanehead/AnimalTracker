@@ -1,0 +1,17 @@
+Requirements:
+
+libjpeg-dev
+
+Postgres installation
+User and database created
+	sudo -i -u postgres
+	createuser --interactive (username as role)
+	createdb animal_tracker
+	# back as user
+	createdb (need to create db for username)
+
+# Database table creation (why do we need to delete migrations directory?)
+migrate.py db init
+migrate.py db migrate
+migrate.py db upgrade
+

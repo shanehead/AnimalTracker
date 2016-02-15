@@ -27,14 +27,9 @@
 {% include 'flash.html' %}
 {% from "_formhelper.html" import form_field %}
 
-{% if graph %}
-	{{ graph.plot_resources|indent(4)|safe }}
-	{{ graph.script|indent(4)|safe }}
-{% endif %}
-
 <a href="{{ url_for("add_weight", animal_id=animal.id) }}" class="btn btn-primary" role="button">Add Weight</a>
 {% if graph and form %}
-	{{  graph.div|indent(4)|safe }}
+	{{  graph.html|indent(4)|safe }}
     <div class="well">
 		<form class="form-inline" action="" method="post" name="graph_weight">
 			{{ form.hidden_tag() }}

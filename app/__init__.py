@@ -8,9 +8,15 @@ from flask.ext.bower import Bower
 from config import DevConfig
 from momentjs import momentjs
 
+def format_datetime(value, format='full'):
+	if format == 'full':
+		date_format = "%m/%d/%y %H:%M:%S"
+	return value.strftime(date_format)
+
 app = Flask(__name__)
 app.config.from_object(DevConfig)
 app.jinja_env.globals['momentjs'] = momentjs
+app.jinja_env.filters['datetime'] = format_datetime
 bootstrap = Bootstrap(app)
 QRcode(app)
 mail = Mail(app)

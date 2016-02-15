@@ -5,8 +5,9 @@ class Config(object):
 	SITE_NAME = 'Animal Tracker'
 	WTF_CSRF_ENABLED = True
 	SECRET_KEY = 'q\\r8^!@uLcw/z90|y{c,6B56q2vw!mlG'
+	SQLALCHEMY_TRACK_MODIFICATIONS=True
 	if os.environ.get('DATABASE_URL') is None:
-		SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker"
+		SQLALCHEMY_DATABASE_URI = "postgresql:///animal_tracker"
 	else:
 		SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 	GOOGLE_LOGIN_CLIENT_ID = '128739772730-itrb3b45v3nnu99sdk5e4h8tvrkp2t4b.apps.googleusercontent.com'
@@ -34,7 +35,7 @@ class DevConfig(Config):
 	DEBUG = True
 	WTF_CSRF_ENABLED = False
 	if os.environ.get('DATABASE_URL') is None:
-		SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker_dev"
+		SQLALCHEMY_DATABASE_URI = "postgresql:///animal_tracker_dev"
 	else:
 		SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
@@ -42,6 +43,6 @@ class TestConfig(Config):
 	TESTING = True
 	WTF_CSRF_ENABLED = False
 	if os.environ.get('DATABASE_URL') is None:
-		SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker"
+		SQLALCHEMY_DATABASE_URI = "postgresql:///animal_tracker"
 	else:
-		SQLALCHEMY_DATABASE_URI = "postgresql://localhost/animal_tracker_test"
+		SQLALCHEMY_DATABASE_URI = "postgresql:///animal_tracker_test"
