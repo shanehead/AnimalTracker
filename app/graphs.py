@@ -34,8 +34,8 @@ def plot_weight(animal, weights=None, start_date=None, end_date=None):
 	axes.x.ticks.show = True
 	axes.x.ticks.locator = toyplot.locator.Explicit(locations=x, labels=xlabels)
 
-	axes.plot(x, y, marker='o', size=40)
+	axes.plot(x, y, marker='o', size=40, title='Weight')
 	html = toyplot.html.render(canvas)
 
-	graph = Graph(html=xml.etree.ElementTree.tostring(html))
+	graph = Graph(html=xml.etree.ElementTree.tostring(html, method='html'))
 	return graph
