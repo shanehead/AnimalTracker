@@ -11,7 +11,7 @@
 		{% for animal in animals %}
 			<tr>
 				<td>
-					<a href="{{ url_for('animal', id=animal.id) }}"><img src="{{ animal.get_avatar() }}" class="img-responsive" alt="{{ animal.name }}" width="125" height="125"></a>
+					<a href="{{ url_for('animal', id=animal.id) }}"><img src="{{ animal.get_avatar() }}" class="img-responsive img-rounded" alt="{{ animal.name }}" width="125" height="125"></a>
 				</td>
 				<td><p>Name: {{ animal.name }}</p></td>
 				<td><p>Species: {{ animal.species_common }}</p></td>

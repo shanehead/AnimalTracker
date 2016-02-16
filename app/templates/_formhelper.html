@@ -19,8 +19,7 @@
         {% set placeholder = field.label.text %}
     {% endif %}
     {% set field_status = '' %}
-    {% if form.errors and (form.submitted or (form.is_submitted() and form.submit.data)) %}
-        {# form.submit.data for support multiple forms on page #}
+    {% if form.errors and (form.submitted or (form.is_submitted())) %}
         {# form.submitted - manual control for form without button (ajax) #}
         {# If form has error, password field would be empty in repeat form
            and user need to retype this value.

@@ -17,7 +17,7 @@ class AddAnimalForm(Form):
 	species = StringField('Species', validators=[Length(max=100)])
 	dob = DateField('Date of Birth', display_format='%m/%d/%Y')
 	weight_units = SelectField('Weight Units', choices=WEIGHT_UNITS)
-	avatar = FileField('Photo', validators=[FileAllowed(['jpg',], 'Images Only')])
+	avatar = FileField('Photo', validators=[FileAllowed(['jpg','jpeg'], 'Images Only')])
 
 class AddWeightForm(Form):
 	weight = DecimalField('Weight', validators=[DataRequired()])
