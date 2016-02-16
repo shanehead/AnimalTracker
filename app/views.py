@@ -99,6 +99,7 @@ def edit_animal(id):
 		animal.name = form.name.data
 		animal.species = form.species.data
 		animal.species_common = form.species_common.data
+		animal.weight_units = form.weight_units.data
 		animal.dob = form.dob.data
 		if form.avatar.data:
 			photo_path = s3_upload(form.avatar)
@@ -111,6 +112,7 @@ def edit_animal(id):
 		form.name.data = animal.name
 		form.species.data = animal.species
 		form.species_common.data = animal.species_common
+		form.weight_units.data = animal.weight_units
 		form.dob.data = animal.dob
 	return render_template('edit_animal.html', form=form, animal=animal)
 
