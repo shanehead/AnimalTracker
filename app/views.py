@@ -53,6 +53,11 @@ def oauth_callback(provider):
 		this_user = User(email=email, name=name, avatar=picture)
 		db.session.add(this_user)
 		db.session.commit()
+	# Check if their avatar has changed
+	if this_user.avatar != picture:
+		this_user.avatar = picture
+		db.session.add(this_user)
+		db.session.commit()
 	login_user(this_user, remember=True)
 	g.user = this_user
 	return redirect(url_for('user', id=g.user.id))

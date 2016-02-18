@@ -13,8 +13,8 @@
 				<td>
 					<a href="{{ url_for('animal', id=animal.id) }}"><img src="{{ animal.get_avatar() }}" class="img-responsive img-rounded" alt="{{ animal.name }}" width="75" height="75"></a>
 				</td>
-				<td><p>Name: {{ animal.name }}</p></td>
-				<td><p>Species: {{ animal.species_common }}</p></td>
+				<td><p>{{ animal.name }}</p></td>
+				<td><p>{{ animal.species_common }}</p></td>
 			</tr>
 		{% endfor %}
 		</tbody>
