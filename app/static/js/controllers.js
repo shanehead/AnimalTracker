@@ -95,6 +95,12 @@ animalTracker.controller('AnimalController', ['$stateParams', '$http', '$rootSco
     }
 ]);
 
+animalTracker.controller('QRController', ['$stateParams', '$scope', '$state',
+    function ($stateParams, $scope, $state) {
+        console.log('QRController');
+        $scope.string = $state.href('animal', {animalId: $stateParams.animalId}, {absolute: true});
+    }
+]);
 animalTracker.controller('AddAnimalController', ['fileUpload', 'AuthService', '$state', '$http',
     function (fileUpload, AuthService, $state, $http) {
         console.log('AddAnimalController');

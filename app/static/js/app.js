@@ -2,7 +2,7 @@
 
 var animalTracker = angular.module('AngularAnimalTracker', [
     'ui.router', 'ngCookies', 'angular-google-gapi', 'AngularAnimalTrackerRouter',
-    'formly', 'formlyBootstrap', 'angularMoment']);
+    'formly', 'formlyBootstrap', 'angularMoment', 'ja.qr']);
 var router = angular.module('AngularAnimalTrackerRouter', []);
 
 router.config(['$urlRouterProvider',
@@ -35,6 +35,12 @@ router.config(['$stateProvider',
                 url: '/animal/:animalId',
                 templateUrl: 'static/partials/animal.html',
                 controller: 'AnimalController',
+                //resolve: {authenticate: authenticate}
+            })
+            .state('qrcode', {
+                url: '/qrcode/:animalId',
+                templateUrl: 'static/partials/qrcode.html',
+                controller: 'QRController',
                 //resolve: {authenticate: authenticate}
             })
             //.state('animal_note', {
