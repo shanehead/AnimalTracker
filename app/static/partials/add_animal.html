@@ -1,0 +1,9 @@
+<div class="well" ng-controller="AddAnimalController as vm">
+    <h1>Add an Animal</h1>
+	<form ng-submit="vm.onSubmit()" name="vm.form">
+		<formly-form model="vm.animal" fields="vm.animalFields" form="vm.addAnimalForm">
+			<button type="submit" class="btn btn-primary" ng-disabled="vm.addAnimalForm.$invalid">Submit</button>
+		</formly-form>
+	</form>
+</div>
+

@@ -7,7 +7,6 @@
     {% if user.id == g.user.id %}
         <a href="{{ url_for('edit_user') }}" class="btn btn-primary" role="button">Edit Profile</a>
         <a href="{{ url_for('add_animal') }}" class="btn btn-primary" role="button">Add Animal</a>
-        <a href="{{ url_for('alerts') }}" class="btn btn-primary" role="button">Alerts</a>
     {% endif %}
     </p>
 </div>

@@ -1,0 +1,20 @@
+<div class="well">
+    <div class="pull-right">
+        <p><img src="{{ animal.avatar }}" width="125" height="125" class="Rounded Image" alt="{{ animal.name }}"></p>
+        <div ng-if="animal.species != ''">
+           <h4>{{ animal.species }} ({{ animal.species_common }})</h4>
+        </div>
+        <div ng-if="animal.species == ''">
+            <h3>{{ animal.species_common }}</h3>
+        </div>
+    </div>
+    <h1>{{animal.name}}</h1>
+    <p>Owner: <a href="#/animal/{{animal.owner.id}}"> <img src="{{ animal.owner.avatar }}" class="Rounded Image" alt="{{ animal.owner.name }}" height="50" width="50"></a></p>
+    <div ng-if="animal.dob != ''">
+        <p><em>Age: {{ animal.age }}</em></p>
+    </div>
+    <p>
+        <a href="#/qrcode/{{animal.id}}" class="btn btn-primary" role="button">QR Code</a>
+        <a href="#/weights/{{anima.id}}" class="btn btn-primary" role="button">Weight</a>
+    </p>
+</div>

@@ -1,4 +1,7 @@
 {% extends "bootstrap/base.html" %}
+{% block html_attribs %}
+    ng-app="AngularAnimalTracker"
+{% endblock %}
 
 {% block title %}
     {% if title %} {{ title }} {% else %} Animal Tracker {% endif %}
@@ -11,8 +14,6 @@
 {% endblock %}
 
 {% block styles %}
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="stylesheet" href={{ url_for('bower.static', filename="bootstrap/dist/css/bootstrap.min.css") }}/>
 {% endblock %}
 
 {% block scripts %}
@@ -20,6 +21,13 @@
   	<script type="text/javascript" src={{ url_for('bower.static', filename="moment/min/moment.min.js") }}></script>
   	<script type="text/javascript" src={{ url_for('bower.static',
             							filename="bootstrap/dist/js/bootstrap.min.js") }}></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-route.min.js"></script>
+    <script type="text/javascript" src={{ url_for('bower.static',
+                                        filename="angular-google-gapi/dist/angular-google-gapi.min.js") }}</script></script>
+    <script type="text/javascript" src={{ url_for('static', filename="js/app.js") }}></script>
+    <script type="text/javascript" src={{ url_for('static', filename="js/services.js") }}></script>
+    <script type="text/javascript" src={{ url_for('static', filename="js/controllers.js") }}></script>
 {% endblock %}
 
 
@@ -34,20 +42,6 @@
 		</button>
 		<a href="{{ url_for('index') }}" class="navbar-brand">Home</a>
 	</div>
-	<div id="navbarCollapse" class="collapse navbar-collapse">
-		{% if g.user.is_authenticated %}
-			<ul class="nav navbar-nav">
-				<li><a href="{{ url_for('user', id=g.user.id) }}">Your Profile</a></li>
-			</ul>
-			<ul class="nav navbar-nav navbar-right">
-				<li><a href="{{ url_for('logout') }}">Logout</a></li>
-			</ul>
-		{% else %}
-			<ul class="nav navbar-nav navbar-right">
-				<li><a href="{{ url_for('login') }}">Login</a></li>
-			</ul>
-		{% endif %}
-	</div>
 </nav>
 {% endblock %}
 
@@ -55,4 +49,7 @@
 <div class="container">
 	{{ super() }}
 </div>
+{% raw %}
+<div ng-view></div>
+{% endraw %}
 {% endblock %}

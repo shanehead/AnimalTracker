@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="AngularAnimalTracker">
+<head>
+    <meta charset="UTF-8">
+    <title>Animal Tracker</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="static/animal_tracker.css" rel="stylesheet" media="screen">
+    <link rel="shortcut icon" href="static/favicon.ico">
+
+</head>
+<body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+                    <span class="sr-only">Toggle Navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Animal Tracker</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li ng-show="gdata.getUser()"><a href="" ng-click="logout()">Logout</a></li>
+                    <li><a href="/">{{ gdata.getUser().name }}</a></li>
+                </ul>
+            </div><!-- navbar-collapse -->
+        </div>
+    </nav>
+
+    <div ui-view></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-cookies.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-route.min.js" type="text/javascript"></script>
+    <script src="static/bower_components/angular-google-gapi/dist/angular-google-gapi.min.js" type="text/javascript"></script>
+    <script src="static/bower_components/angular-ui-router/release/angular-ui-router.min.js" type="text/javascript"></script>
+    <script src="static/bower_components/api-check/dist/api-check.js" type="text/javascript"></script>
+    <script src="static/bower_components/angular-formly/dist/formly.js" type="text/javascript"></script>
+    <script src="static/bower_components/angular-formly-templates-bootstrap/dist/angular-formly-templates-bootstrap.js" type="text/javascript"></script>
+    <script src="static/bower_components/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-moment/1.0.0-beta.6/angular-moment.min.js" type="text/javascript"></script>
+    <script src="static/bower_components/moment-precise-range.js" type="text/javascript"></script>
+    <script src="static/js/app.js" type="text/javascript"></script>
+    <script src="static/js/services.js" type="text/javascript"></script>
+    <script src="static/js/controllers.js" type="text/javascript"></script>
+</body>
+</html>

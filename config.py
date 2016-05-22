@@ -10,8 +10,8 @@ class Config(object):
 		SQLALCHEMY_DATABASE_URI = "postgresql:///animal_tracker"
 	else:
 		SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-	GOOGLE_LOGIN_CLIENT_ID = '128739772730-itrb3b45v3nnu99sdk5e4h8tvrkp2t4b.apps.googleusercontent.com'
-	GOOGLE_LOGIN_CLIENT_SECRET = 'iGPd2eQQFQRuXXItlUUc19UI'
+	GOOGLE_LOGIN_CLIENT_ID = '671703668524-m8gn0i797rop7u95hpbrqdc18duu5q5d.apps.googleusercontent.com'
+	GOOGLE_LOGIN_CLIENT_SECRET = 'C_PrGs9EBdEXblAtjTSrIrox'
 	OATH_CREDENTIALS = {'google':
 						   {'id': GOOGLE_LOGIN_CLIENT_ID,
 							'secret': GOOGLE_LOGIN_CLIENT_SECRET}}
