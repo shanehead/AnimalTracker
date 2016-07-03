@@ -1,42 +1,12 @@
-<!-- extend base layout -->
-{% extends "base.html" %}
-
-{% block scripts %}
-    {{ super() }}
-    <script type="text/javascript" src={{ url_for('bower.static',
-			filename="eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js") }}></script>
-    <script type="text/javascript">
-		$(function () {
-        	$('#datetimepicker1').datetimepicker();
-        });
-	</script>
-    <script type="text/javascript">
-		$(function () {
-        	$('#datetimepicker2').datetimepicker();
-        });
-	</script>
-{% endblock %}
-
-{% block styles %}
-    {{ super() }}
-    <link rel="stylesheet" href={{ url_for('bower.static',
-    		filename="eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css") }}/>
-{% endblock %}
-
-{% block content %}
-{% include 'flash.html' %}
-{% from "_formhelper.html" import form_field %}
-
-<a href="{{ url_for("add_weight", animal_id=animal.id) }}" class="btn btn-primary" role="button">Add Weight</a>
-{% if graph and form %}
-	{{  graph.html|safe }}
-    <div class="well">
-		<form class="form-inline" action="" method="post" name="graph_weight">
-			{{ form.hidden_tag() }}
-			{{ form_field(form, form.start_date, group_id="datetimepicker1", append='<span class="glyphicon glyphicon-calendar"></span>') }}
-			{{ form_field(form, form.end_date, group_id="datetimepicker2", append='<span class="glyphicon glyphicon-calendar"></span>') }}
-			<input class="btn btn-primary" type="submit" value="Submit">
-		</form>
-	</div>
-{% endif %}
-{% endblock %}
+<div class="well">
+    <highchart id="weight_chart" config="chartConfig"></highchart>
+    <button ng-click="showAddWeight=!showAddWeight" ng-init="showAddWeight=False" class="btn btn-primary">Add Weight</a>
+</div>
+<div class="well" ng-controller="AddAnimalWeightController as vm" ng-show="showAddWeight">
+    <h1>Add an Animal Weight</h1>
+	<form ng-submit="vm.onSubmit()" name="vm.form">
+		<formly-form model="vm.animal_weight" fields="vm.animalWeightFields" form="vm.addAnimalWeightForm">
+			<button type="submit" class="btn btn-primary" ng-disabled="vm.addAnimalWeightForm.$invalid">Submit</button>
+		</formly-form>
+	</form>
+</div>

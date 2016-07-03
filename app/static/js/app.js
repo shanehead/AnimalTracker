@@ -2,7 +2,7 @@
 
 var animalTracker = angular.module('AngularAnimalTracker', [
     'ui.router', 'ngCookies', 'angular-google-gapi', 'AngularAnimalTrackerRouter',
-    'formly', 'formlyBootstrap', 'angularMoment', 'ja.qr']);
+    'formly', 'formlyBootstrap', 'angularMoment', 'ja.qr', 'highcharts-ng']);
 var router = angular.module('AngularAnimalTrackerRouter', []);
 
 router.config(['$urlRouterProvider',
@@ -22,62 +22,49 @@ router.config(['$stateProvider',
                 url: '/user',
                 templateUrl: 'static/partials/user.html',
                 controller: 'UserController',
-                cache: false
-                //resolve: {authenticate: authenticate}
+                cache: false,
+                data: {requireLogin: true}
             })
             .state('add_animal', {
                 url: '/add_animal',
                 templateUrl: 'static/partials/add_animal.html',
-                controller: 'AddAnimalController'
-                //resolve: {authenticate: authenticate}
+                controller: 'AddAnimalController',
+                data: {requireLogin: true}
             })
             .state('animal', {
                 url: '/animal/:animalId',
                 templateUrl: 'static/partials/animal.html',
                 controller: 'AnimalController',
-                //resolve: {authenticate: authenticate}
+                resolve: {
+                    animal: function (AnimalService, $stateParams) { 
+                        return AnimalService.getAnimal($stateParams.animalId);
+                    }
+                },
+                data: {requireLogin: true}
             })
             .state('qrcode', {
                 url: '/qrcode/:animalId',
                 templateUrl: 'static/partials/qrcode.html',
                 controller: 'QRController',
-                //resolve: {authenticate: authenticate}
             })
             //.state('animal_note', {
             //    url: '/animal_note/:animalId',
             //    templateUrl: 'static/partials/animal_note.html',
-            //    controller: 'AnimalNoteController',
-            //    resolve: {authenticate: authenticate}
+            //    controller: 'AnimalNoteController'
             //})
-            //.state('animal_weight', {
-            //    url: '/animal_weight/:animalId',
-            //    templateUrl: 'static/partials/animal_weight.html',
-            //    controller: 'AnimalWeightController',
-            //    resolve: {authenticate: authenticate}
-            //})
+            .state('animal_weight', {
+                url: '/animal_weight/:animalId',
+                templateUrl: 'static/partials/animal_weight.html',
+                controller: 'AnimalWeightController',
+                data: {requireLogin: true}
+            })
             //.state('alerts', {
             //    url: '/alerts',
             //    templateUrl: 'static/partials/alerts.html',
-            //    controller: 'AlertController',
-            //    resolve: {authenticate: authenticate}
+            //    controller: 'AlertController'
             //})
-
-        function authenticate($q, user, $state, $timeout) {
-            console.log("authenticate: starting");
-            if (user.isLoggedIn()) {
-                console.log("authenticate: logged in");
-                return $q.when();
-            } else {
-                console.log("authenticate: not logged in");
-                $timeout(function() {
-                    $state.go('login');
-                })
-
-                console.log("authenticate: return");
-                return $q.reject();
-            }
-        }
-    }]);
+    }
+]);
 
 animalTracker.run(['GAuth', 'GData', 'AuthService', 'formlyConfig', '$state', '$rootScope', '$cookies',
                    '$window',
@@ -87,26 +74,28 @@ animalTracker.run(['GAuth', 'GData', 'AuthService', 'formlyConfig', '$state', '$
         GAuth.setClient(CLIENT);
         GAuth.setScope("https://www.googleapis.com/auth/userinfo.email");
 
-        var currentUser = $cookies.get('userId');
-        if (currentUser) {
-            GData.setUserId(currentUser);
-            GAuth.checkAuth().then(
-                function() {
-                    console.log("checkAuth.then");
-                    AuthService.login(GData.getUser()).then( function () {
-                        console.log("CheckAuth.then -> AuthService.login.then");
-                        $state.go('user');
-                    });
-                },
-                function () {
-                    console.log("checkAuth else");
-                    $state.go('login');
-                }
-            );
-        } else {
-            console.log("run function else");
-            $state.go('login');
-        }
+        // var currentUser = $cookies.get('userId');
+        // if (currentUser) {
+        //     GData.setUserId(currentUser);
+        //     GAuth.checkAuth().then(
+        //         function() {
+        //             console.log("checkAuth.then");
+        //             AuthService.login(GData.getUser()).then( function () {
+        //                 console.log("CheckAuth.then -> AuthService.login.then");
+        //                 if ($state.is('login')) {
+        //                     $state.go('user');
+        //                 }
+        //             });
+        //         },
+        //         function () {
+        //             console.log("checkAuth else");
+        //             $state.go('login');
+        //         }
+        //     );
+        // } else {
+        //     console.log("run function else");
+        //     $state.go('login');
+        // }
 
         formlyConfig.setType({
             name: 'upload',
@@ -159,15 +148,56 @@ animalTracker.run(['GAuth', 'GData', 'AuthService', 'formlyConfig', '$state', '$
             });
         };
 
-        $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, options) {
+        $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState) {
             console.log('statechangeStart');
-            /*
             console.log(event)
             console.log('toState');
             console.log(toState)
             console.log('fromstate');
             console.log(fromState)
-            */
+            var shouldLogin = toState.data !== undefined &&toState.data.requireLogin 
+                              && !AuthService.isLoggedIn();
+            
+            // Not authenticated, send to login
+            if (shouldLogin) {
+                var currentUser = $cookies.get('userId');
+                 if (currentUser) {
+                     console.log("shouldLogin, but has cookie");
+                    GData.setUserId(currentUser);
+                    GAuth.checkAuth().then(
+                        function() {
+                            console.log("stateChangestart: checkAuth.then");
+                            AuthService.login(GData.getUser()).then( function () {
+                                console.log("stateChangestart: CheckAuth.then -> AuthService.login.then");
+                                if ($state.is('login')) {
+                                    $state.go('user');
+                                }
+                            });
+                        },
+                        function () {
+                            console.log("stateChangestart: checkAuth else");
+                            $state.go('login');
+                        }
+                    );
+                    return; 
+                } else {
+                     console.log("shouldLogin, sending to login")
+                     $state.go('login');
+                     event.preventDefault();
+                     return;
+                }
+            }
+            
+            // authenticated previously, coming not to root main
+            if (AuthService.isLoggedIn()) {
+                var shouldGoToUser = fromState.name === "" && toState.name !== "user";
+                console.log("shouldGoToUser, sending to user");
+                if (shouldGoToUser) {
+                    $state.go('user');
+                    event.preventDefault();
+                    return;
+                }
+            }
         });
         $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams, options) {
             console.log('statechangeSuccess');

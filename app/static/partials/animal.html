@@ -14,7 +14,7 @@
         <p><em>Age: {{ animal.age }}</em></p>
     </div>
     <p>
-        <a href="#/qrcode/{{animal.id}}" class="btn btn-primary" role="button">QR Code</a>
-        <a href="#/weights/{{anima.id}}" class="btn btn-primary" role="button">Weight</a>
+        <a ui-sref="qrcode({animalId: '{{animal.id}}' })" class="btn btn-primary" role="button">QR Code</a>
+        <a ui-sref="animal_weight({animalId: '{{animal.id}}' })" class="btn btn-primary" role="button">Weight</a>
     </p>
 </div>

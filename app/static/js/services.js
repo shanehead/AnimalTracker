@@ -116,3 +116,14 @@ animalTracker.service('fileUpload', ['$http', '$q',
         }
     }
 ]);
+
+animalTracker.service('AnimalService', ['$http',
+    function ($http) {
+        this.getAnimal = function (animalId) {
+            console.log("AnimalService");
+            console.log("animal_id");
+            console.log(animalId);
+            return $http.get('/api/animals/' + animalId);
+        }
+    }
+]);
