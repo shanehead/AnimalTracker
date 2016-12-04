@@ -1,6 +1,7 @@
 <div class="well">
     <highchart id="weight_chart" config="chartConfig"></highchart>
-    <button ng-click="showAddWeight=!showAddWeight" ng-init="showAddWeight=False" class="btn btn-primary">Add Weight</a>
+    <button ng-click="showAddWeight=!showAddWeight" ng-init="showAddWeight=False" class="btn btn-primary">Add Weight</button>
+    <button ng-click="showEditWeight=!showEditWeight; reloadAnimal()" ng-init="showEditWeight=False" class="btn btn-primary">Edit Weights</button>
 </div>
 <div class="well" ng-controller="AddAnimalWeightController as vm" ng-show="showAddWeight">
     <h1>Add an Animal Weight</h1>
@@ -9,4 +10,39 @@
 			<button type="submit" class="btn btn-primary" ng-disabled="vm.addAnimalWeightForm.$invalid">Submit</button>
 		</formly-form>
 	</form>
+</div>
+<div class="well" ng-controller="EditAnimalWeightController" ng-show="showEditWeight">
+    <h1>Edit {{ weight.animal.name }}'s Weights</h1>
+    <table class="table table-bordered table-hover table-condensed">
+        <tr style="font-weight: bold">
+            <td style="width:50%">Date</td>
+            <td style="width:50%">Weight ({{ weight_units() }})</td>
+        </tr>
+        <tr ng-repeat="weight in weights">
+            <td>
+                <span editable-text="weight.date" e-name="date" e-form="rowform" e-required>
+                    {{ weight.date }}
+                </span>
+            </td>
+            <td>
+                <span editable-text="weight.weight" e-name="weight" e-form="rowform" e-required>
+                    {{ weight.weight }}
+                </span>
+            </td>
+            <td style="white-space: nowrap">
+                <form editable-form name="rowform" onbeforesave="saveWeight($data, weight.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == weight">
+                    <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
+                        save
+                    </button>
+                    <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
+                        cancel
+                    </button>
+                </form>
+                <div class="buttons" ng-show="!rowform.$visible">
+                    <button class="btn btn-primary" ng-click="rowform.$show()">edit</button>
+                    <button class="btn btn-danger" ng-click="removeWeight(weight.date, weight.id)">del</button>
+                </div>
+            </td>
+        </tr>
+    </table>
 </div>

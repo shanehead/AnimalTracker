@@ -117,13 +117,40 @@ animalTracker.service('fileUpload', ['$http', '$q',
     }
 ]);
 
-animalTracker.service('AnimalService', ['$http',
-    function ($http) {
+animalTracker.service('AnimalService', ['$http', 'moment', '$q',
+    function ($http, moment, $q) {
         this.getAnimal = function (animalId) {
             console.log("AnimalService");
             console.log("animal_id");
             console.log(animalId);
-            return $http.get('/api/animals/' + animalId);
+            return $http.get('/api/animals/' + animalId).then(function(response) {
+                var deferred = $q.defer();
+                console.log("AnimalService get.then");
+                var animal = response.data;
+                // Need to calculate the age here
+                var diff = moment().preciseDiff(moment(animal.dob), true);
+                if (diff.years > 0) {
+                    if (diff.months > 0) {
+                        if (diff.days > 0) {
+                            animal.age = diff.years + " years, " + diff.months + " months, " + diff.days + " days";
+                        } else {
+                            animal.age = diff.years + " years, " + diff.months + " months"
+                        }
+                    } else {
+                        animal.age = diff.years + " years"
+                    }
+                } else if (diff.months > 0) {
+                    if (diff.days > 0) {
+                        animal.age = diff.months + " months, " + diff.days + " days";
+                    } else {
+                        animal.age = diff.months + " months";
+                    }
+                } else if (diff.days > 0) {
+                    animal.age = diff.days + " days";
+                }
+                deferred.resolve(animal);
+                return deferred.promise;
+            });
         }
     }
 ]);

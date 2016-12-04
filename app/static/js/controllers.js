@@ -56,40 +56,29 @@ animalTracker.controller('UserController', ['AuthService', '$rootScope', '$http'
     }
 ]);
 
-animalTracker.controller('AnimalController', ['animal', '$scope', 'moment',
-    function (animal, $scope, moment) {
+animalTracker.controller('AnimalController', ['animal', '$scope',
+    function (animal, $scope) {
         console.log('AnimalController');
         console.log('animal=');
-        console.log(animal.data);
-        $scope.animal = animal.data;
-        // Need to calculate the age here
-        var diff = moment().preciseDiff(moment(animal.dob), true);
-        if (diff.years > 0) {
-            if (diff.months > 0) {
-                if (diff.days > 0) {
-                    $scope.animal.age = diff.years + " years, " + diff.months + " months, " + diff.days + " days";
-                } else {
-                    $scope.animal.age = diff.years + " years, " + diff.months + " months"
-                }
-            } else {
-                $scope.animal.age = diff.years + " years"
-            }
-        } else if (diff.months > 0) {
-            if (diff.days > 0) {
-                $scope.animal.age = diff.months + " months, " + diff.days + " days";
-            } else {
-                $scope.animal.age = diff.months + " months";
-            }
-        } else if (diff.days > 0) {
-            $scope.animal.age = diff.days + " days";
-        }
+        console.log(animal);
+        $scope.animal = animal;
     }
 ]);
 
-animalTracker.controller('AnimalWeightController', ['$stateParams', '$scope', '$http',
-    function ($stateParams, $scope, $http) {
+animalTracker.controller('AnimalWeightController', ['animal', '$stateParams', '$scope', 'AnimalService',
+    function (animal, $stateParams, $scope, AnimalService) {
         console.log('AnimalWeightController');
-        $scope.animalId = $stateParams.animalId;
+        console.log(animal);
+        $scope.animal = animal;
+        var weight_series = [];
+        
+        $scope.animal.weights.forEach(function (animalWeight) {
+            var weight_date = new Date(animalWeight.date);
+            console.log("date");
+            console.log(weight_date);
+            weight_series.push([weight_date.getTime(), animalWeight.weight]);
+        });
+        weight_series.sort(function(a,b) {return a[0] - b[0]});
             
         $scope.chartConfig = {
             options: {
@@ -100,52 +89,39 @@ animalTracker.controller('AnimalWeightController', ['$stateParams', '$scope', '$
             },
             series: [{
                 name: "Weight",
-                data: []
+                data: weight_series
             }],
             title: {
-                text: 'Weight'
+                text: $scope.animal.name
             },
             xAxis: {
                 type: 'datetime',
                 labels: { 
-                    format: '{value:%m/%d/%Y}' 
+                    format: '{value:%m/%d/%y}' 
                 },
                 title: {text: 'Date'}
             },
             yAxis: {
-                title: {text: 'Weight'}
+                title: {text: 'Weight (' + $scope.animal.weight_units + ')'}
             },
             func: function(chart) {
-                $http.get('/api/weights', {
-                    params: {
-                        'q': {
-                            'filters': [{"name": "animal_id", "op": "==", "val": $scope.animalId}],
-                            'order_by': [{"field": "date", "direction": "asc"}]
-                        }
-                    }
-                }).then(function (response) {
-                    var data = response.data;
-                    console.log("get weights returned");
-                    console.log(data);
-                    var animal = data.objects[0].animal;
-                    $scope.chartConfig.yAxis.title.text = 'Weight (' + animal.weight_units + ')';
-                    data.objects.forEach(function (animalWeight) {
-                        chart.title.text = animalWeight.animal.name;
-                        var weight_date = new Date(animalWeight.date);
-                        console.log("date");
-                        console.log(weight_date);
-                        chart.series[0].addPoint([weight_date.getTime(), animalWeight.weight], true);
-                    });
-                    console.log("now");
-                    console.log(Date.now());
-                    console.log('chart.series');
-                    console.log(chart.series);
-                    console.log('chart');
-                    console.log(chart);
-                }), function () {
-                    console.log("error getting weights");
-                }
+                chart.title.text = $scope.animal.name;
+                console.log('chart');
+                console.log(chart);
+                console.log('chart.series');
+                console.log(chart.series);
             }
+        }
+        
+        $scope.reloadAnimal = function () {
+            console.log("Reload Animal");
+            AnimalService.getAnimal($stateParams.animalId).then(function (response) {
+                $scope.animal = response;
+                console.log("$scope.animal");
+                console.log($scope.animal);
+                $scope.weights = $scope.animal.weights.sort(function(a,b) {return (a.date > b.date) ? 1 : ((b.date > a.date) ? -1 : 0);});
+                console.log($scope.weights)
+            })
         }
     }
 ]);
@@ -337,3 +313,100 @@ animalTracker.controller('AddAnimalWeightController', ['$stateParams', '$http', 
         };
     }
 ]);
+
+animalTracker.controller('EditAnimalWeightController', ['AnimalService', '$scope', '$stateParams', '$http',
+    function (AnimalService, $scope, $stateParams, $http) {
+        $scope.weight_units = function() {
+            return $scope.animal.weight_units;     
+        };
+        
+        $scope.saveWeight = function(data, id) {
+            var chart = $scope.chartConfig.getHighcharts();
+            var weight_date = new Date(data.date);
+            console.log("current series", chart.series[0]);
+            // Get the weight for the given id.  We need the existing date to be able to find it in our series
+            // in case it was updated in the form. Then find it and update it
+            $http.get('api/weights/' + id).then(function (response) {
+                console.log("response.data: ", response.data)
+                var found_weight_date = new Date(response.data.date).getTime();
+                chart.series[0].data.forEach(function (animalWeight, idx) {
+                    console.log("animalWeight.x: ", animalWeight.x);
+                    if (animalWeight.x == found_weight_date) {
+                        console.log("updating idx", idx);
+                        chart.series[0].data[idx].update({x: weight_date.getTime(), y: data.weight});
+                        console.log("updated series", chart.series[0]);
+                    }
+                });
+            });
+            console.log("saveWeight");
+            console.log(data);
+            return $http.put('api/weights/' + id, {date: weight_date, weight: data.weight}).then(function(response) { $scope.reloadAnimal()});
+        };
+        
+        $scope.removeWeight = function(in_date, id) {
+            console.log("removeWeight");
+            console.log(in_date);
+            console.log(id);
+            var chart = $scope.chartConfig.getHighcharts();
+            var weight_date = new Date(in_date).getTime();
+            // We need to find this date in our series and remove it
+            chart.series[0].data.forEach(function(animalWeight, idx) {
+                console.log("animalWeight.x: ", animalWeight.x);
+                console.log("weight_date: ", weight_date);
+                if (animalWeight.x == weight_date)
+                {
+                    console.log("removing idx", idx)
+                    chart.series[0].removePoint(idx, true);
+                }
+            })
+            return $http.delete('api/weights/' + id).then(function(response) { $scope.reloadAnimal()});
+        };
+        $scope.reloadAnimal();
+    }
+])
+
+animalTracker.controller('EditAnimalController', ['AnimalService', '$scope', '$stateParams', '$http',
+    function (AnimalService, $scope, $stateParams, $http) {
+        $scope.opened = {};                
+        
+        $scope.weight_units = [
+            {value: 'lb', text: 'lb'},
+            {value: 'kg', text: 'kg'},
+            {value: 'g', text: 'g'}
+        ];
+        
+        $scope.open = function($event, elementOpened) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.opened[elementOpened] = !$scope.opened[elementOpened];            
+        };
+        
+        $scope.saveWeight = function(data, id) {
+            var chart = $scope.chartConfig.getHighcharts();
+            var weight_date = new Date(data.date);
+            console.log("current series", chart.series[0]);
+            console.log("saveWeight");
+            console.log(data);
+            return $http.put('api/weights/' + id, {date: weight_date, weight: data.weight}).then(function(response) { $scope.reloadAnimal()});
+        };
+        
+        $scope.removeWeight = function(in_date, id) {
+            console.log("removeWeight");
+            console.log(in_date);
+            console.log(id);
+            var chart = $scope.chartConfig.getHighcharts();
+            var weight_date = new Date(in_date).getTime();
+            // We need to find this date in our series and remove it
+            chart.series[0].data.forEach(function(animalWeight, idx) {
+                console.log("animalWeight.x: ", animalWeight.x);
+                console.log("weight_date: ", weight_date);
+                if (animalWeight.x == weight_date)
+                {
+                    console.log("removing idx", idx)
+                    chart.series[0].removePoint(idx, true);
+                }
+            });
+            return $http.delete('api/weights/' + id).then(function(response) { $scope.reloadAnimal()});
+        };
+    }
+])

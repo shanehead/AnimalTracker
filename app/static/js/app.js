@@ -2,7 +2,7 @@
 
 var animalTracker = angular.module('AngularAnimalTracker', [
     'ui.router', 'ngCookies', 'angular-google-gapi', 'AngularAnimalTrackerRouter',
-    'formly', 'formlyBootstrap', 'angularMoment', 'ja.qr', 'highcharts-ng']);
+    'formly', 'formlyBootstrap', 'angularMoment', 'ja.qr', 'highcharts-ng', 'xeditable']);
 var router = angular.module('AngularAnimalTrackerRouter', []);
 
 router.config(['$urlRouterProvider',
@@ -56,6 +56,11 @@ router.config(['$stateProvider',
                 url: '/animal_weight/:animalId',
                 templateUrl: 'static/partials/animal_weight.html',
                 controller: 'AnimalWeightController',
+                resolve: {
+                    animal: function (AnimalService, $stateParams) { 
+                        return AnimalService.getAnimal($stateParams.animalId);
+                    }
+                },
                 data: {requireLogin: true}
             })
             //.state('alerts', {
@@ -138,6 +143,12 @@ animalTracker.run(['GAuth', 'GData', 'AuthService', 'formlyConfig', '$state', '$
                     required: true
                 }
             }
+        });
+      
+        formlyConfig.setType({
+            name: 'editableInput',
+            extends: 'input',
+            template: '<div><span editable-text="model[options.key]" e-name="{{::id}}">{{ model[options.key] || "empty" }}</span></div>'
         });
 
         $rootScope.logout = function() {

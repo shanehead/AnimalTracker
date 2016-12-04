@@ -9,12 +9,63 @@
         </div>
     </div>
     <h1>{{animal.name}}</h1>
-    <p>Owner: <a href="#/animal/{{animal.owner.id}}"> <img src="{{ animal.owner.avatar }}" class="Rounded Image" alt="{{ animal.owner.name }}" height="50" width="50"></a></p>
     <div ng-if="animal.dob != ''">
+        <p><em>Birthday: {{ animal.dob | date: 'shortDate'}}</em></p>
         <p><em>Age: {{ animal.age }}</em></p>
     </div>
     <p>
+        <button ng-click="showEditAnimal=!showEditAnimal" ng-init="showEditAnimal=False" class="btn btn-primary">Edit {{ animal.name }}</button>
         <a ui-sref="qrcode({animalId: '{{animal.id}}' })" class="btn btn-primary" role="button">QR Code</a>
         <a ui-sref="animal_weight({animalId: '{{animal.id}}' })" class="btn btn-primary" role="button">Weight</a>
     </p>
 </div>
+<div class="well" ng-controller="EditAnimalController" ng-show="showEditAnimal">
+    <h1>Edit {{ animal.name }}</h1>
+    <form editable-form name="editAnimalForm" onaftersave="saveAnimal()">
+        <div>
+            <span class="title">Name: </span>
+            <span editable-text="animal.name" e-name="name" e-required>{{ animal.name }}</span>
+        </div>
+        <div>
+            <span class="title">Species: </span>
+            <span editable-text="animal.species" e-name="species" e-required>{{ animal.species }}</span>
+        </div>
+        <div>
+            <span class="title">Species (Common): </span>
+            <span editable-text="animal.species_common" e-name="species_common" e-required>{{ animal.species_common }}</span>
+        </div>
+        <div>
+            <span class="title">Species: </span>
+            <span editable-text="animal.species" e-name="species" e-required>{{ animal.species }}</span>
+        </div>
+        <div>
+            <span class="title">Date of Birth: </span>
+            <span editable-bsdate="animal.dob" e-is-open="opened.$data" e-ng-click="open($event, '$data')" e-datepicker-popup="MM/dd/YYYY" e-name="dob" e-required>
+                {{ animal.dob | date: 'shortDate'}}
+            </span>
+        </div>
+        <div>
+            <span class="title">Avatar: </span>
+            <span editable-text="animal.species" e-name="species" e-required>Avatar</span>
+        </div>
+        <div>
+            <span class="title">Weight Units: </span>
+            <span editable-select="animal.weight_units" e-name="weight_units"
+                  e-ng-options="s.value as s.text for s in weight_units" e-required>{{ animal.weight_units }}</span>
+        </div>
+        <div>
+            <button type="button" class="btn btn-default" ng-click="editAnimalForm.$show()" ng-show="!editAnimalForm.$visible">
+                Edit
+            </button>
+            <span ng-show="editAnimalForm.$visible">
+                <button type="submit" class="btn btn-primary" ng-disabled="editAnimalForm.$waiting">
+                    Save
+                </button>
+            </span>
+            <button type="button" class="btn btn-default" ng-disabled="editAnimalForm.$waiting" ng-click="editAnimalForm.$cancel()">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
+

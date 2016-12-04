@@ -14,7 +14,7 @@ import json
 # Create API endpoints
 for model_name in api_models:
     model_class = api_models[model_name]
-    api_manager.create_api(model_class, methods=['GET', 'POST', 'DELETE'])
+    api_manager.create_api(model_class, methods=['GET', 'POST', 'DELETE', 'PUT', 'PATCH'], allow_patch_many=True)
 
 @app.route('/')
 @app.route('/index')
