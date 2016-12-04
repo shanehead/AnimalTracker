@@ -413,4 +413,47 @@ animalTracker.controller('EditAnimalController', ['AnimalService', '$scope', '$s
             return $http.delete('api/weights/' + id).then(function(response) { $scope.reloadAnimal()});
         };
     }
-])
+]);
+
+animalTracker.controller('EditAnimalNoteController', ['AnimalService', '$scope', '$http', '$stateParams',
+    function (AnimalService, $scope, $http, $stateParams) {
+       $scope.notes = $scope.animal.notes;
+
+       $scope.reloadNotes = function () {
+            console.log("Reload Animal Notes");
+            AnimalService.getAnimal($stateParams.animalId).then(function (response) {
+                $scope.animal = response;
+                console.log("$scope.animal");
+                console.log($scope.animal);
+                $scope.notes = $scope.animal.notes;
+            })
+        };
+
+        $scope.saveNote = function(data, id) {
+            $http.put('api/animal_notes/' + id, data).then(function (response) {
+                $scope.reloadNotes();
+            });
+        };
+
+        $scope.removeNote = function(id) {
+            console.log("removeNote");
+            console.log(id);
+            return $http.delete('api/animal_notes/' + id).then(function(response) { $scope.reloadNotes()});
+        };
+
+        $scope.addNote = function() {
+            $http.post('api/animal_notes', {
+                animal_id: $scope.animal.id,
+                date: new Date(),
+                note: '',
+                user_id: $scope.animal.owner_id
+            }).then(
+                function (response) {
+                    console.log("new note created, reload Notes");
+                    $scope.reloadNotes();
+                }
+            )
+        }
+        $scope.reloadNotes();
+    }
+]);

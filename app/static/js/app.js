@@ -47,11 +47,6 @@ router.config(['$stateProvider',
                 templateUrl: 'static/partials/qrcode.html',
                 controller: 'QRController',
             })
-            //.state('animal_note', {
-            //    url: '/animal_note/:animalId',
-            //    templateUrl: 'static/partials/animal_note.html',
-            //    controller: 'AnimalNoteController'
-            //})
             .state('animal_weight', {
                 url: '/animal_weight/:animalId',
                 templateUrl: 'static/partials/animal_weight.html',
@@ -172,13 +167,13 @@ animalTracker.run(['GAuth', 'GData', 'AuthService', 'formlyConfig', '$state', '$
             // Not authenticated, send to login
             if (shouldLogin) {
                 var currentUser = $cookies.get('userId');
-                 if (currentUser) {
-                     console.log("shouldLogin, but has cookie");
+                if (currentUser) {
+                    console.log("shouldLogin, but has cookie");
                     GData.setUserId(currentUser);
                     GAuth.checkAuth().then(
-                        function() {
+                        function () {
                             console.log("stateChangestart: checkAuth.then");
-                            AuthService.login(GData.getUser()).then( function () {
+                            AuthService.login(GData.getUser()).then(function () {
                                 console.log("stateChangestart: CheckAuth.then -> AuthService.login.then");
                                 if ($state.is('login')) {
                                     $state.go('user');
@@ -190,12 +185,12 @@ animalTracker.run(['GAuth', 'GData', 'AuthService', 'formlyConfig', '$state', '$
                             $state.go('login');
                         }
                     );
-                    return; 
+                    return;
                 } else {
-                     console.log("shouldLogin, sending to login")
-                     $state.go('login');
-                     event.preventDefault();
-                     return;
+                    console.log("shouldLogin, sending to login")
+                    $state.go('login');
+                    event.preventDefault();
+                    return;
                 }
             }
             

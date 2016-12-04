@@ -2,21 +2,24 @@
     <div class="pull-right">
         <p><img src="{{ animal.avatar }}" width="125" height="125" class="Rounded Image" alt="{{ animal.name }}"></p>
         <div ng-if="animal.species != ''">
-           <h4>{{ animal.species }} ({{ animal.species_common }})</h4>
+            <h4>{{ animal.species }} ({{ animal.species_common }})</h4>
         </div>
         <div ng-if="animal.species == ''">
             <h3>{{ animal.species_common }}</h3>
         </div>
     </div>
-    <h1>{{animal.name}}</h1>
+    <h1>{{ animal.name }}</h1>
     <div ng-if="animal.dob != ''">
         <p><em>Birthday: {{ animal.dob | date: 'shortDate'}}</em></p>
         <p><em>Age: {{ animal.age }}</em></p>
     </div>
     <p>
-        <button ng-click="showEditAnimal=!showEditAnimal" ng-init="showEditAnimal=False" class="btn btn-primary">Edit {{ animal.name }}</button>
-        <a ui-sref="qrcode({animalId: '{{animal.id}}' })" class="btn btn-primary" role="button">QR Code</a>
-        <a ui-sref="animal_weight({animalId: '{{animal.id}}' })" class="btn btn-primary" role="button">Weight</a>
+        <button ng-click="showEditAnimal=!showEditAnimal" ng-init="showEditAnimal=False" class="btn btn-primary">
+            Edit {{ animal.name }}</button>
+        <a ui-sref="qrcode({animalId: '{{ animal.id }}' })" class="btn btn-primary" role="button">QR Code</a>
+        <a ui-sref="animal_weight({animalId: '{{ animal.id }}' })" class="btn btn-primary" role="button">Weight</a>
+        <button ng-click="showEditAnimalNotes=!showEditAnimalNotes" ng-init="showEditAnimalNotes=False"
+                class="btn btn-primary">Notes</button>
     </p>
 </div>
 <div class="well" ng-controller="EditAnimalController" ng-show="showEditAnimal">
@@ -32,7 +35,8 @@
         </div>
         <div>
             <span class="title">Species (Common): </span>
-            <span editable-text="animal.species_common" e-name="species_common" e-required>{{ animal.species_common }}</span>
+            <span editable-text="animal.species_common" e-name="species_common"
+                  e-required>{{ animal.species_common }}</span>
         </div>
         <div>
             <span class="title">Species: </span>
@@ -40,7 +44,8 @@
         </div>
         <div>
             <span class="title">Date of Birth: </span>
-            <span editable-bsdate="animal.dob" e-is-open="opened.$data" e-ng-click="open($event, '$data')" e-datepicker-popup="MM/dd/YYYY" e-name="dob" e-required>
+            <span editable-bsdate="animal.dob" e-is-open="opened.$data" e-ng-click="open($event, '$data')"
+                  e-datepicker-popup="MM/dd/YYYY" e-name="dob" e-required>
                 {{ animal.dob | date: 'shortDate'}}
             </span>
         </div>
@@ -54,7 +59,8 @@
                   e-ng-options="s.value as s.text for s in weight_units" e-required>{{ animal.weight_units }}</span>
         </div>
         <div>
-            <button type="button" class="btn btn-default" ng-click="editAnimalForm.$show()" ng-show="!editAnimalForm.$visible">
+            <button type="button" class="btn btn-default" ng-click="editAnimalForm.$show()"
+                    ng-show="!editAnimalForm.$visible">
                 Edit
             </button>
             <span ng-show="editAnimalForm.$visible">
@@ -62,10 +68,48 @@
                     Save
                 </button>
             </span>
-            <button type="button" class="btn btn-default" ng-disabled="editAnimalForm.$waiting" ng-click="editAnimalForm.$cancel()">
+            <button type="button" class="btn btn-default" ng-disabled="editAnimalForm.$waiting"
+                    ng-click="editAnimalForm.$cancel()">
                 Cancel
             </button>
         </div>
     </form>
 </div>
-
+<div class="well" ng-controller="EditAnimalNoteController" ng-show="showEditAnimalNotes">
+    <h1>{{ animal.name }}'s Notes</h1>
+    <table class="table table-bordered table-hover table-condensed">
+        <tr style="font-weight: bold">
+            <td style="width:50%">Date</td>
+            <td style="width:50%">Note</td>
+        </tr>
+        <tr ng-repeat="note in notes">
+            <td>
+                <span text="note.date" e-name="date" e-form="rowform">
+                    {{ note.date | date: 'short'}}
+                </span>
+            </td>
+            <td>
+                <span editable-textarea="note.note" e-name="note" e-form="rowform" e-required e-style="width: 100%; height: 100%; border: none">
+                    {{ note.note }}
+                </span>
+            </td>
+            <td style="white-space: nowrap">
+                <form editable-form name="rowform" onbeforesave="saveNote($data, note.id)"
+                      ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == note">
+                    <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
+                        save
+                    </button>
+                    <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()"
+                            class="btn btn-default">
+                        cancel
+                    </button>
+                </form>
+                <div class="buttons" ng-show="!rowform.$visible">
+                    <button class="btn btn-primary" ng-click="rowform.$show()">edit</button>
+                    <button class="btn btn-danger" ng-click="removeNote(note.id)">del</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <button type="button" class="btn btn-default" ng-click="addNote()">Add Note</button>
+</div>
