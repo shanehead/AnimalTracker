@@ -76,7 +76,7 @@ animalTracker.controller('AnimalWeightController', ['animal', '$stateParams', '$
             var weight_date = new Date(animalWeight.date);
             console.log("date");
             console.log(weight_date);
-            weight_series.push([weight_date.getTime(), animalWeight.weight]);
+            weight_series.push([weight_date.getTime(), parseFloat(animalWeight.weight)]);
         });
         weight_series.sort(function(a,b) {return a[0] - b[0]});
             
@@ -119,8 +119,9 @@ animalTracker.controller('AnimalWeightController', ['animal', '$stateParams', '$
                 $scope.animal = response;
                 console.log("$scope.animal");
                 console.log($scope.animal);
-                $scope.weights = $scope.animal.weights.sort(function(a,b) {return (a.date > b.date) ? 1 : ((b.date > a.date) ? -1 : 0);});
-                console.log($scope.weights)
+                $scope.weights = $scope.animal.weights.sort(function(a,b) {
+                    return (a.date > b.date) ? 1 : ((b.date > a.date) ? -1 : 0);});
+                console.log($scope.weights);
             })
         }
     }
@@ -333,14 +334,17 @@ animalTracker.controller('EditAnimalWeightController', ['AnimalService', '$scope
                     console.log("animalWeight.x: ", animalWeight.x);
                     if (animalWeight.x == found_weight_date) {
                         console.log("updating idx", idx);
-                        chart.series[0].data[idx].update({x: weight_date.getTime(), y: data.weight});
-                        console.log("updated series", chart.series[0]);
+                        chart.series[0].data[idx].update({x: weight_date.getTime(), y: parseFloat(data.weight)});
+                        console.log("updated series, now put weight", chart.series[0]);
+                        console.log(data);
+                        $http.put('api/weights/' + id, {date: weight_date, weight: data.weight}).then(
+                            function (response) {
+                                console.log("weight has ben PUT, reload animal");
+                                $scope.reloadAnimal()
+                        });
                     }
                 });
             });
-            console.log("saveWeight");
-            console.log(data);
-            return $http.put('api/weights/' + id, {date: weight_date, weight: data.weight}).then(function(response) { $scope.reloadAnimal()});
         };
         
         $scope.removeWeight = function(in_date, id) {

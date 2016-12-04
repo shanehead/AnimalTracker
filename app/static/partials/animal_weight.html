@@ -1,15 +1,18 @@
 <div class="well">
     <highchart id="weight_chart" config="chartConfig"></highchart>
-    <button ng-click="showAddWeight=!showAddWeight" ng-init="showAddWeight=False" class="btn btn-primary">Add Weight</button>
-    <button ng-click="showEditWeight=!showEditWeight; reloadAnimal()" ng-init="showEditWeight=False" class="btn btn-primary">Edit Weights</button>
+    <button ng-click="showAddWeight=!showAddWeight" ng-init="showAddWeight=False" class="btn btn-primary">Add Weight
+    </button>
+    <button ng-click="showEditWeight=!showEditWeight; reloadAnimal()" ng-init="showEditWeight=False"
+            class="btn btn-primary">Edit Weights
+    </button>
 </div>
 <div class="well" ng-controller="AddAnimalWeightController as vm" ng-show="showAddWeight">
     <h1>Add an Animal Weight</h1>
-	<form ng-submit="vm.onSubmit()" name="vm.form">
-		<formly-form model="vm.animal_weight" fields="vm.animalWeightFields" form="vm.addAnimalWeightForm">
-			<button type="submit" class="btn btn-primary" ng-disabled="vm.addAnimalWeightForm.$invalid">Submit</button>
-		</formly-form>
-	</form>
+    <form ng-submit="vm.onSubmit()" name="vm.form">
+        <formly-form model="vm.animal_weight" fields="vm.animalWeightFields" form="vm.addAnimalWeightForm">
+            <button type="submit" class="btn btn-primary" ng-disabled="vm.addAnimalWeightForm.$invalid">Submit</button>
+        </formly-form>
+    </form>
 </div>
 <div class="well" ng-controller="EditAnimalWeightController" ng-show="showEditWeight">
     <h1>Edit {{ weight.animal.name }}'s Weights</h1>
@@ -30,11 +33,13 @@
                 </span>
             </td>
             <td style="white-space: nowrap">
-                <form editable-form name="rowform" onbeforesave="saveWeight($data, weight.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == weight">
+                <form editable-form name="rowform" onbeforesave="saveWeight($data, weight.id)"
+                      ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == weight">
                     <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
                         save
                     </button>
-                    <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
+                    <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()"
+                            class="btn btn-default">
                         cancel
                     </button>
                 </form>
