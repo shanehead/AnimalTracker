@@ -9,8 +9,9 @@ redis_conn = Redis()
 q = Queue(connection=redis_conn)
 
 scheduler = BlockingScheduler()
+
 @scheduler.scheduled_job('interval', hours=1)
 def check_alerts():
-	q.enqueue(send_alerts)
+    q.enqueue(send_alerts)
 
 scheduler.start()

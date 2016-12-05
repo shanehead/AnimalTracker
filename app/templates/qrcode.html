@@ -1,7 +1,0 @@
-<!-- extend base layout -->
-{% extends "base.html" %}
-
-{% block content %}
-{% include 'flash.html' %}
-<img src="{{ qrcode(url_for('animal', id=id, _external=True)) }}">
-{% endblock %}

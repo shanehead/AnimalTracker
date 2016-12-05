@@ -4,7 +4,6 @@ from uuid import uuid4
 from flask import current_app as app
 from werkzeug.utils import secure_filename
 from PIL import Image, ExifTags
-from config import basedir
 import cStringIO
 
 def s3_upload(source_file, acl='public-read'):
