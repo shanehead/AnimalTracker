@@ -1,37 +1,31 @@
-import boto
-import os.path
-from uuid import uuid4
-from flask import current_app as app
-from werkzeug.utils import secure_filename
 from PIL import Image, ExifTags
+from uuid import uuid4
 import cStringIO
+from google.cloud import storage
+from app import app
 
-def s3_upload(source_file, acl='public-read'):
-    source_filename = secure_filename(source_file.filename)
-    source_extension = os.path.splitext(source_filename)[1]
+def google_storage_upload(source_file):
     # Rotate it properly
     image_buffer = cStringIO.StringIO(source_file.read())
     fixed_image_buffer = fix_image_rotation(image_buffer)
 
-    destination_filename = uuid4().hex + source_extension
-
-    # Connect to S3 and upload file
-    conn = boto.connect_s3(app.config["AWS_ACCESS_KEY_ID"], app.config["AWS_SECRET_ACCESS_KEY"])
-    b = conn.get_bucket(app.config["S3_BUCKET_NAME"])
-
-    key = b.new_key("/".join([app.config["S3_UPLOAD_DIRECTORY"], destination_filename]))
+    # Connect to google cloud datastore and upload file
     fixed_image_buffer.seek(0)
-    key.set_contents_from_string(fixed_image_buffer.read())
-    key.set_acl(acl)
-    url = key.generate_url(expires_in=0, query_auth=False)
+    client = storage.Client()
+    bucket = client.get_bucket(app.config['CLOUD_STORAGE_BUCKET'])
+    name = str(uuid4())
+    blob = bucket.blob(name)
+    blob.upload_from_string(fixed_image_buffer.read())
+    blob.make_public()
 
-    return url
+    return app.config['CLOUD_STORAGE_URL'] + '/' + name
 
 def fix_image_rotation(image_buffer):
     try:
         image = Image.open(image_buffer)
+        orientation = None
         for orientation in ExifTags.TAGS.keys():
-            if ExifTags.TAGS[orientation]=='Orientation':
+            if ExifTags.TAGS[orientation] == 'Orientation':
                 break
         exif = dict(image._getexif().items())
 

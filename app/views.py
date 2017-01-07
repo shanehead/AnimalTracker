@@ -1,7 +1,7 @@
 from app import app, api_manager
 from flask import request, Response
 from models import api_models
-from tools import s3_upload
+from tools import google_storage_upload
 import json
 
 # Create API endpoints
@@ -17,9 +17,8 @@ def index():
 @app.route('/add_animal', methods=['POST'])
 def add_animal():
     upload_file = request.files['file']
-    print "method=add_animal upload_file='%s'" % str(upload_file)
     if upload_file:
-        photo_uri = s3_upload(upload_file)
+        photo_uri = google_storage_upload(upload_file)
         data = {'photo_uri': photo_uri}
         resp = Response(json.dumps(data), status=200, mimetype='application/json')
         return resp
